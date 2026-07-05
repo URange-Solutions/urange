@@ -1,5 +1,5 @@
 import Image from "next/image";
-import logo from '@/assets/logo.png';
+import logo from '@/assets/logo-dark.png';
 import { ArrowRight, ArrowUpRight } from "lucide-react";
 
 const navLinks = [
@@ -35,10 +35,10 @@ export function Footer() {
                         <Image
                             src={logo}
                             alt="URange Systems"
-                            className="h-14 w-auto object-contain"
+                            className="h-12 w-auto object-contain"
                             priority
                         />
-                        <h1 className='font-head text-xl text-brand'>URange Systems</h1>
+                        <h1 className='font-head text-xl text-white'>URange Systems</h1>
                     </div>
                     <p className="text-neutral-400 text-sm mt-3 leading-relaxed">
                         Turning visible problems into efficient, accessible, and reliable

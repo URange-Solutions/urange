@@ -60,7 +60,7 @@ export default function Landing() {
       <section id="home">
         <HeroBackground>
           <div className="min-h-[calc(100dvh+80px)] flex flex-row justify-between items-center mx-6 md:mx-24">
-            <div className="max-w-2xl text-center md:text-left">
+            <div className="max-w-2xl text-left mt-16 md:mt-0">
               <Text className="text-brand font-head text-5xl md:text-6xl leading-12 md:leading-16">
                 <span className="text-black">
                   LET<span className="text-brand">'</span>S TURN VISIBLE{" "}
@@ -68,13 +68,13 @@ export default function Landing() {
                 PROBLEMS INTO{" "}
                 <span className="bg-brand text-white px-2">SYSTEMS</span>
               </Text>
-              <Text className="text-neutral-600 md:text-lg mt-4 mx-4 md:mx-0">
+              <Text className="text-neutral-600 md:text-lg mt-4">
                 We focused on creating practical digital solutions for
                 real-world problems. We aim to simplify everyday processes by
                 turning visible challenges into efficient, accessible, and
                 reliable systems through technology.
               </Text>
-              <div className="flex flex-row justify-center md:justify-start gap-4 mt-4">
+              <div className="flex flex-row justify-start gap-4 mt-4">
                 <Button className="px-6 py-2.5">Get Started</Button>
                 <Button className="px-6 py-2.5" variant={"outline"}>
                   Learn More
@@ -132,9 +132,9 @@ export default function Landing() {
                 The people behind it
               </p>
               <div className="flex flex-col gap-4">
-                {team.map((member) => (
+                {team.map((member, idx) => (
                   <div
-                    key={member.name}
+                    key={idx}
                     className="flex items-center gap-4 border-2 border-black p-4 hover:bg-brand hover:text-white transition-colors group"
                   >
                     <div className="w-12 h-12 bg-brand text-white font-head text-lg flex items-center justify-center shrink-0 group-hover:bg-white group-hover:text-brand transition-colors">

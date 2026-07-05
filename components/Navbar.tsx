@@ -40,13 +40,12 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
           <Image
             src={logo}
             alt="URange Systems"
-            className="h-10 w-auto object-contain"
+            className="h-12 w-auto object-contain"
             priority
           />
           <span className="font-head text-xl text-brand">URange Systems</span>
         </Link>
 
-        {/* desktop nav */}
         <ul className="hidden md:flex items-center gap-4">
           {links.map((l) => (
             <li key={l.label}>
@@ -65,7 +64,6 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
           </li>
         </ul>
 
-        {/* mobile hamburger */}
         <Button
           className="px-1.5 py-1.5 md:hidden"
           onClick={() => setIsOpen((prev) => !prev)}
@@ -75,7 +73,6 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
         </Button>
       </nav>
 
-      {/* ── mobile drawer ── */}
       <div
         className={`md:hidden w-full bg-white overflow-hidden transition-all duration-300 ease-in-out ${
           isOpen ? 'max-h-96 py-6' : 'max-h-0 py-0'

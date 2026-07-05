@@ -19,6 +19,9 @@ const space = Space_Grotesk({
 export const metadata: Metadata = {
   title: "URange Systems",
   description: "Turning visible problems into systems.",
+  icons: {
+    icon: '/icon.png'
+  }
 };
 
 export default function RootLayout({
