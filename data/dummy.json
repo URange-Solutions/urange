@@ -1,0 +1,382 @@
+[
+  {
+    "id": "be7b738f-fd85-4a67-9630-779283a191a3",
+    "merchant_id": "1d87e3c9-443c-4f15-89cd-9f3e7701abab",
+    "merchant": "EZVote",
+    "transaction_id": "ff44c166-9a0a-499a-9652-4f05807e7515",
+    "amount": 100,
+    "status": "pending",
+    "reference": "5012345678901",
+    "paid_at": null,
+    "created_at": "2026-07-31T12:22:15.123Z",
+    "metadata": {
+      "description": "Upgrade Pro EZVote",
+      "customer": {
+        "name": "Jan Liby Dela Costa",
+        "email": "john@example.com",
+        "phone": "09171234567"
+      }
+    }
+  },
+  {
+    "id": "a1b2c3d4-e5f6-7a8b-9c0d-1e2f3a4b5c6d",
+    "merchant_id": "1d87e3c9-443c-4f15-89cd-9f3e7701abab",
+    "merchant": "EZVote",
+    "transaction_id": "aa11bb22-cc33-dd44-ee55-ff6677889900",
+    "amount": 499,
+    "status": "completed",
+    "reference": "5012345678902",
+    "paid_at": "2026-07-31T10:15:00.000Z",
+    "created_at": "2026-07-31T10:10:00.000Z",
+    "metadata": {
+      "description": "Enterprise Election Tier",
+      "customer": {
+        "name": "Maria Santos",
+        "email": "maria.santos@gmail.com",
+        "phone": "09189876543"
+      }
+    }
+  },
+  {
+    "id": "f8e7d6c5-b4a3-2f1e-0d9c-8b7a6f5e4d3c",
+    "merchant_id": "2e98f4da-554d-4g16-90de-0g4f8802bcbc",
+    "merchant": "PayHub",
+    "transaction_id": "12345678-abcd-ef01-2345-6789abcdef01",
+    "amount": 1250,
+    "status": "completed",
+    "reference": "5012345678903",
+    "paid_at": "2026-07-30T16:45:10.000Z",
+    "created_at": "2026-07-30T16:42:00.000Z",
+    "metadata": {
+      "description": "Monthly API Subscription",
+      "customer": {
+        "name": "Juan Dela Cruz",
+        "email": "juan.cruz@company.com",
+        "phone": "09201112233"
+      }
+    }
+  },
+  {
+    "id": "1a2b3c4d-5e6f-7a8b-9c0d-1e2f3a4b5c6d",
+    "merchant_id": "3f09g5eb-665e-5h27-01ef-1h5g9903cdcd",
+    "merchant": "ShopSwift",
+    "transaction_id": "98765432-fedc-ba09-8765-43210fedcba9",
+    "amount": 850,
+    "status": "rejected",
+    "reference": "5012345678904",
+    "paid_at": null,
+    "created_at": "2026-07-30T14:20:30.000Z",
+    "metadata": {
+      "description": "Checkout Items #4021",
+      "customer": {
+        "name": "Angela Reyes",
+        "email": "areyes@yahoo.com",
+        "phone": "09083334455"
+      }
+    }
+  },
+  {
+    "id": "b2c3d4e5-f6a7-8b9c-0d1e-2f3a4b5c6d7e",
+    "merchant_id": "1d87e3c9-443c-4f15-89cd-9f3e7701abab",
+    "merchant": "EZVote",
+    "transaction_id": "45678901-2345-6789-abcd-ef0123456789",
+    "amount": 150,
+    "status": "completed",
+    "reference": "5012345678905",
+    "paid_at": "2026-07-30T09:05:00.000Z",
+    "created_at": "2026-07-30T09:00:15.000Z",
+    "metadata": {
+      "description": "SMS Notifications Addon",
+      "customer": {
+        "name": "Carlos Mendoza",
+        "email": "cmendoza@outlook.com",
+        "phone": "09175556677"
+      }
+    }
+  },
+  {
+    "id": "c3d4e5f6-a7b8-9c0d-1e2f-3a4b5c6d7e8f",
+    "merchant_id": "4g10h6fc-776f-6i38-12fg-2i6h0004dede",
+    "merchant": "CloudVault",
+    "transaction_id": "78901234-5678-90ab-cdef-0123456789ab",
+    "amount": 2999,
+    "status": "completed",
+    "reference": "5012345678906",
+    "paid_at": "2026-07-29T18:12:44.000Z",
+    "created_at": "2026-07-29T18:10:00.000Z",
+    "metadata": {
+      "description": "1TB Annual Storage",
+      "customer": {
+        "name": "Beatriz Garcia",
+        "email": "b.garcia@techcorp.io",
+        "phone": "09228889900"
+      }
+    }
+  },
+  {
+    "id": "d4e5f6a7-b8c9-0d1e-2f3a-4b5c6d7e8f9a",
+    "merchant_id": "2e98f4da-554d-4g16-90de-0g4f8802bcbc",
+    "merchant": "PayHub",
+    "transaction_id": "34567890-1234-5678-90ab-cdef01234567",
+    "amount": 350,
+    "status": "pending",
+    "reference": "5012345678907",
+    "paid_at": "2026-07-28T11:00:00.000Z",
+    "created_at": "2026-07-28T10:30:00.000Z",
+    "metadata": {
+      "description": "Duplicate Charge Refund",
+      "customer": {
+        "name": "Lester Tan",
+        "email": "ltan@domain.com",
+        "phone": "09194445566"
+      }
+    }
+  },
+  {
+    "id": "e5f6a7b8-c9d0-1e2f-3a4b-5c6d7e8f9a0b",
+    "merchant_id": "3f09g5eb-665e-5h27-01ef-1h5g9903cdcd",
+    "merchant": "ShopSwift",
+    "transaction_id": "01234567-89ab-cdef-0123-456789abcdef",
+    "amount": 2100,
+    "status": "completed",
+    "reference": "5012345678908",
+    "paid_at": "2026-07-28T08:15:20.000Z",
+    "created_at": "2026-07-28T08:00:00.000Z",
+    "metadata": {
+      "description": "Order #88219",
+      "customer": {
+        "name": "Patricia Ramos",
+        "email": "patty.ramos@gmail.com",
+        "phone": "09179990011"
+      }
+    }
+  },
+  {
+    "id": "f6a7b8c9-d0e1-2f3a-4b5c-6d7e8f9a0b1c",
+    "merchant_id": "1d87e3c9-443c-4f15-89cd-9f3e7701abab",
+    "merchant": "EZVote",
+    "transaction_id": "fedcba98-7654-3210-fedc-ba9876543210",
+    "amount": 100,
+    "status": "pending",
+    "reference": "5012345678909",
+    "paid_at": null,
+    "created_at": "2026-07-27T21:40:00.000Z",
+    "metadata": {
+      "description": "Upgrade Pro EZVote",
+      "customer": {
+        "name": "Gabriel Torres",
+        "email": "gtorres@dev.org",
+        "phone": "09271239876"
+      }
+    }
+  },
+  {
+    "id": "a7b8c9d0-e1f2-3a4b-5c6d-7e8f9a0b1c2d",
+    "merchant_id": "4g10h6fc-776f-6i38-12fg-2i6h0004dede",
+    "merchant": "CloudVault",
+    "transaction_id": "abcdef01-2345-6789-abcd-ef0123456789",
+    "amount": 500,
+    "status": "completed",
+    "reference": "5012345678910",
+    "paid_at": "2026-07-27T15:10:05.000Z",
+    "created_at": "2026-07-27T15:00:00.000Z",
+    "metadata": {
+      "description": "Storage Top-up 100GB",
+      "customer": {
+        "name": "Sofia Aquino",
+        "email": "sofia.a@workspace.com",
+        "phone": "09187776655"
+      }
+    }
+  },
+  {
+    "id": "b8c9d0e1-f2a3-4b5c-6d7e-8f9a0b1c2d3e",
+    "merchant_id": "2e98f4da-554d-4g16-90de-0g4f8802bcbc",
+    "merchant": "PayHub",
+    "transaction_id": "56789012-3456-7890-abcd-ef0123456789",
+    "amount": 750,
+    "status": "completed",
+    "reference": "5012345678911",
+    "paid_at": "2026-07-26T19:22:00.000Z",
+    "created_at": "2026-07-26T19:20:00.000Z",
+    "metadata": {
+      "description": "Developer License Renewal",
+      "customer": {
+        "name": "Mark Villanueva",
+        "email": "markv@coder.ph",
+        "phone": "09051234432"
+      }
+    }
+  },
+  {
+    "id": "c9d0e1f2-a3b4-5c6d-7e8f-9a0b1c2d3e4f",
+    "merchant_id": "3f09g5eb-665e-5h27-01ef-1h5g9903cdcd",
+    "merchant": "ShopSwift",
+    "transaction_id": "67890123-4567-890a-bcde-f0123456789a",
+    "amount": 180,
+    "status": "rejected",
+    "reference": "5012345678912",
+    "paid_at": null,
+    "created_at": "2026-07-26T11:05:12.000Z",
+    "metadata": {
+      "description": "Express Delivery Fee",
+      "customer": {
+        "name": "Hannah Flores",
+        "email": "hannah.f@gmail.com",
+        "phone": "09176543210"
+      }
+    }
+  },
+  {
+    "id": "d0e1f2a3-b4c5-6d7e-8f9a-0b1c2d3e4f5a",
+    "merchant_id": "1d87e3c9-443c-4f15-89cd-9f3e7701abab",
+    "merchant": "EZVote",
+    "transaction_id": "89012345-6789-0abc-def0-123456789abc",
+    "amount": 100,
+    "status": "completed",
+    "reference": "5012345678913",
+    "paid_at": "2026-07-25T14:30:00.000Z",
+    "created_at": "2026-07-25T14:28:00.000Z",
+    "metadata": {
+      "description": "Upgrade Pro EZVote",
+      "customer": {
+        "name": "Daniel Padilla",
+        "email": "daniel.p@studio.com",
+        "phone": "09208881122"
+      }
+    }
+  },
+  {
+    "id": "e1f2a3b4-c5d6-7e8f-9a0b-1c2d3e4f5a6b",
+    "merchant_id": "4g10h6fc-776f-6i38-12fg-2i6h0004dede",
+    "merchant": "CloudVault",
+    "transaction_id": "90123456-7890-abcd-ef01-23456789abcd",
+    "amount": 1200,
+    "status": "completed",
+    "reference": "5012345678914",
+    "paid_at": "2026-07-25T09:12:10.000Z",
+    "created_at": "2026-07-25T09:00:00.000Z",
+    "metadata": {
+      "description": "Team Seat Upgrade",
+      "customer": {
+        "name": "Erica Bautista",
+        "email": "ebautista@firm.com",
+        "phone": "09173332211"
+      }
+    }
+  },
+  {
+    "id": "f2a3b4c5-d6e7-8f9a-0b1c-2d3e4f5a6b7c",
+    "merchant_id": "2e98f4da-554d-4g16-90de-0g4f8802bcbc",
+    "merchant": "PayHub",
+    "transaction_id": "01234567-890a-bcde-f012-3456789abcdef",
+    "amount": 320,
+    "status": "pending",
+    "reference": "5012345678915",
+    "paid_at": null,
+    "created_at": "2026-07-24T17:50:00.000Z",
+    "metadata": {
+      "description": "Domain Transfer Fee",
+      "customer": {
+        "name": "Jerome Castro",
+        "email": "jcastro@web.net",
+        "phone": "09081119988"
+      }
+    }
+  },
+  {
+    "id": "a3b4c5d6-e7f8-9a0b-1c2d-3e4f5a6b7c8d",
+    "merchant_id": "3f09g5eb-665e-5h27-01ef-1h5g9903cdcd",
+    "merchant": "ShopSwift",
+    "transaction_id": "12345678-90ab-cdef-0123-456789abcdef",
+    "amount": 4500,
+    "status": "completed",
+    "reference": "5012345678916",
+    "paid_at": "2026-07-24T12:05:00.000Z",
+    "created_at": "2026-07-24T12:00:00.000Z",
+    "metadata": {
+      "description": "Bulk Order Purchase #9012",
+      "customer": {
+        "name": "Regina Tolentino",
+        "email": "regina.t@vendor.com",
+        "phone": "09224443322"
+      }
+    }
+  },
+  {
+    "id": "b4c5d6e7-f89a-0b1c-2d3e-4f5a6b7c8d9e",
+    "merchant_id": "1d87e3c9-443c-4f15-89cd-9f3e7701abab",
+    "merchant": "EZVote",
+    "transaction_id": "23456789-0abc-def0-1234-56789abcdef0",
+    "amount": 100,
+    "status": "rejected",
+    "reference": "5012345678917",
+    "paid_at": "2026-07-23T16:20:00.000Z",
+    "created_at": "2026-07-23T16:15:00.000Z",
+    "metadata": {
+      "description": "Upgrade Pro EZVote",
+      "customer": {
+        "name": "Kevin Navarro",
+        "email": "knavarro@startup.io",
+        "phone": "09172223344"
+      }
+    }
+  },
+  {
+    "id": "c5d6e7f8-9a0b-1c2d-3e4f-5a6b7c8d9e0f",
+    "merchant_id": "4g10h6fc-776f-6i38-12fg-2i6h0004dede",
+    "merchant": "CloudVault",
+    "transaction_id": "34567890-abcdef-0123-4567-89abcdef0123",
+    "amount": 1500,
+    "status": "pending",
+    "reference": "5012345678918",
+    "paid_at": "2026-07-22T10:00:00.000Z",
+    "created_at": "2026-07-22T09:30:00.000Z",
+    "metadata": {
+      "description": "Cancellation Refund",
+      "customer": {
+        "name": "Alyssa Valdes",
+        "email": "avaldes@agency.com",
+        "phone": "09186665544"
+      }
+    }
+  },
+  {
+    "id": "d6e7f89a-0b1c-2d3e-4f5a-6b7c8d9e0f1a",
+    "merchant_id": "2e98f4da-554d-4g16-90de-0g4f8802bcbc",
+    "merchant": "PayHub",
+    "transaction_id": "4567890a-bcdef-0123-4567-89abcdef0123",
+    "amount": 600,
+    "status": "completed",
+    "reference": "5012345678919",
+    "paid_at": "2026-07-21T13:45:00.000Z",
+    "created_at": "2026-07-21T13:40:00.000Z",
+    "metadata": {
+      "description": "Webhooks Addon Subscription",
+      "customer": {
+        "name": "Paolo Roxas",
+        "email": "proxas@tech.ph",
+        "phone": "09059998877"
+      }
+    }
+  },
+  {
+    "id": "e7f89a0b-1c2d-3e4f-5a6b-7c8d9e0f1a2b",
+    "merchant_id": "3f09g5eb-665e-5h27-01ef-1h5g9903cdcd",
+    "merchant": "ShopSwift",
+    "transaction_id": "567890ab-cdef-0123-4567-89abcdef0123",
+    "amount": 950,
+    "status": "completed",
+    "reference": "5012345678920",
+    "paid_at": "2026-07-20T18:30:15.000Z",
+    "created_at": "2026-07-20T18:25:00.000Z",
+    "metadata": {
+      "description": "Order #87541",
+      "customer": {
+        "name": "Samantha Cruz",
+        "email": "sam.cruz@gmail.com",
+        "phone": "09178887766"
+      }
+    }
+  }
+]

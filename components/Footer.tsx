@@ -28,7 +28,7 @@ export function Footer() {
     const year = new Date().getFullYear();
 
     return (
-        <footer className="bg-neutral-950 border-t-4 border-brand">
+        <footer className="bg-black">
             <div className="border-b border-neutral-800 py-12 mx-6 md:mx-24 flex flex-col md:flex-row justify-between items-start gap-8">
                 <div className="max-w-sm">
                     <div className="flex flex-row items-center -ml-3">
@@ -38,7 +38,7 @@ export function Footer() {
                             className="h-12 w-auto object-contain"
                             priority
                         />
-                        <h1 className='font-head text-xl text-white'>URange Systems</h1>
+                        <h1 className='font-head text-xl text-white'>URange Solutions</h1>
                     </div>
                     <p className="text-neutral-400 text-sm mt-3 leading-relaxed">
                         Turning visible problems into efficient, accessible, and reliable

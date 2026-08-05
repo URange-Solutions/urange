@@ -1,7 +1,12 @@
 import type { Metadata } from "next";
-import { Archivo_Black, Space_Grotesk } from "next/font/google";
+import { Archivo_Black, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { ThemeProvider } from "@/components/theme-provider";
+import NextTopLoader from "nextjs-toploader";
+
+const geistMonoHeading = Geist_Mono({ subsets: ['latin'], variable: '--font-heading' });
 
 const archivoBlack = Archivo_Black({
   subsets: ["latin"],
@@ -9,15 +14,11 @@ const archivoBlack = Archivo_Black({
   variable: "--font-head",
   display: "swap",
 });
- 
-const space = Space_Grotesk({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-sans",
-  display: "swap",
-});
+
+const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
+
 export const metadata: Metadata = {
-  title: "URange Systems",
+  title: "URange Solutions: Turning Visible Problems Into Systems",
   description: "Turning visible problems into systems.",
   icons: {
     icon: '/icon.png'
@@ -32,9 +33,27 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={cn("h-full scroll-smooth", "antialiased", archivoBlack.variable, "font-sans", space.variable)}
+      className={cn("h-full scroll-smooth", "antialiased", archivoBlack.variable, "font-sans", geist.variable, geistMonoHeading.variable)}
+      suppressHydrationWarning
     >
-      <body className="min-h-full flex flex-col">{children}</body>
+      <body className="min-h-full flex flex-col">
+        <NextTopLoader
+          color="#ff2600"
+          height={3}
+          showSpinner={false}
+          easing="ease"
+          crawl={true}
+        />
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange>
+          <TooltipProvider>
+            {children}
+          </TooltipProvider>
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

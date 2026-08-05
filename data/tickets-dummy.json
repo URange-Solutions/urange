@@ -1,0 +1,362 @@
+[
+    {
+        "id": "1",
+        "ticket_number": "TCK-0001",
+        "subject": "Unable to log in after password reset",
+        "priority": "high",
+        "status": "open",
+        "assignee": "Jamie Cruz",
+        "created_at": "2026-07-28T09:12:00+08:00",
+        "updated_at": "2026-07-29T14:03:00+08:00",
+        "metadata": {
+            "description": "Customer reset their password via email link but the new password is rejected on login. Tried on both mobile and desktop.",
+            "category": "Account Access",
+            "customer": {
+                "name": "Maria Santos",
+                "email": "maria.santos@email.com",
+                "phone": "+63 917 123 4567"
+            },
+            "notes": [
+                {
+                    "author": "Jamie Cruz",
+                    "message": "Asked customer to clear browser cache and retry. Awaiting response.",
+                    "created_at": "2026-07-29T14:03:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "2",
+        "ticket_number": "TCK-0002",
+        "subject": "Duplicate charge on last invoice",
+        "priority": "urgent",
+        "status": "in_progress",
+        "assignee": "Pat Santos",
+        "created_at": "2026-07-27T16:45:00+08:00",
+        "updated_at": "2026-07-30T10:20:00+08:00",
+        "metadata": {
+            "description": "Customer was billed twice for the July subscription renewal. Requesting refund of the duplicate charge.",
+            "category": "Billing",
+            "customer": {
+                "name": "Ramon dela Cruz",
+                "email": "ramon.delacruz@email.com"
+            },
+            "notes": [
+                {
+                    "author": "Pat Santos",
+                    "message": "Confirmed duplicate charge in payment logs. Refund submitted to finance for approval.",
+                    "created_at": "2026-07-30T10:20:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "3",
+        "ticket_number": "TCK-0003",
+        "subject": "Feature request: export reports to CSV",
+        "priority": "low",
+        "status": "open",
+        "assignee": null,
+        "created_at": "2026-07-30T08:05:00+08:00",
+        "updated_at": "2026-07-30T08:05:00+08:00",
+        "metadata": {
+            "description": "Customer would like the ability to export the analytics dashboard to CSV for offline reporting.",
+            "category": "Feature Request",
+            "customer": {
+                "name": "Angela Reyes",
+                "email": "angela.reyes@email.com"
+            },
+            "notes": []
+        }
+    },
+    {
+        "id": "4",
+        "ticket_number": "TCK-0004",
+        "subject": "App crashes when uploading large images",
+        "priority": "high",
+        "status": "in_progress",
+        "assignee": "Ali Reyes",
+        "created_at": "2026-07-26T11:30:00+08:00",
+        "updated_at": "2026-07-29T17:40:00+08:00",
+        "metadata": {
+            "description": "Mobile app crashes consistently when uploading images larger than 8MB from the gallery.",
+            "category": "Bug Report",
+            "customer": {
+                "name": "Carlo Villanueva",
+                "email": "carlo.villanueva@email.com",
+                "phone": "+63 918 555 2211"
+            },
+            "notes": [
+                {
+                    "author": "Ali Reyes",
+                    "message": "Reproduced on Android 14. Filed bug report with engineering, ETA 3 days.",
+                    "created_at": "2026-07-29T17:40:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "5",
+        "ticket_number": "TCK-0005",
+        "subject": "Question about enterprise plan pricing",
+        "priority": "medium",
+        "status": "resolved",
+        "assignee": "Dana Lim",
+        "created_at": "2026-07-22T13:15:00+08:00",
+        "updated_at": "2026-07-23T09:50:00+08:00",
+        "metadata": {
+            "description": "Prospective customer asking for a breakdown of enterprise tier pricing and seat limits.",
+            "category": "Sales Inquiry",
+            "customer": {
+                "name": "Grace Tolentino",
+                "email": "grace.tolentino@company.com"
+            },
+            "notes": [
+                {
+                    "author": "Dana Lim",
+                    "message": "Sent pricing sheet and scheduled a follow-up call with sales.",
+                    "created_at": "2026-07-22T15:00:00+08:00"
+                },
+                {
+                    "author": "Dana Lim",
+                    "message": "Customer confirmed pricing works for them. Closing as resolved.",
+                    "created_at": "2026-07-23T09:50:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "6",
+        "ticket_number": "TCK-0006",
+        "subject": "Cannot connect Slack integration",
+        "priority": "medium",
+        "status": "open",
+        "assignee": "Jamie Cruz",
+        "created_at": "2026-07-29T19:22:00+08:00",
+        "updated_at": "2026-07-29T19:22:00+08:00",
+        "metadata": {
+            "description": "OAuth flow for Slack integration fails with 'invalid redirect URI' error.",
+            "category": "Integrations",
+            "customer": {
+                "name": "Michael Tan",
+                "email": "michael.tan@email.com"
+            },
+            "notes": []
+        }
+    },
+    {
+        "id": "7",
+        "ticket_number": "TCK-0007",
+        "subject": "Request to delete account and all data",
+        "priority": "high",
+        "status": "in_progress",
+        "assignee": "Pat Santos",
+        "created_at": "2026-07-25T10:00:00+08:00",
+        "updated_at": "2026-07-28T12:10:00+08:00",
+        "metadata": {
+            "description": "Customer is requesting full account and data deletion in line with their data privacy rights.",
+            "category": "Privacy",
+            "customer": {
+                "name": "Bea Mercado",
+                "email": "bea.mercado@email.com"
+            },
+            "notes": [
+                {
+                    "author": "Pat Santos",
+                    "message": "Verified identity and forwarded request to data privacy officer.",
+                    "created_at": "2026-07-28T12:10:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "8",
+        "ticket_number": "TCK-0008",
+        "subject": "Dashboard loading very slowly",
+        "priority": "medium",
+        "status": "resolved",
+        "assignee": "Ali Reyes",
+        "created_at": "2026-07-20T08:40:00+08:00",
+        "updated_at": "2026-07-21T16:00:00+08:00",
+        "metadata": {
+            "description": "Analytics dashboard takes over 30 seconds to load for accounts with large datasets.",
+            "category": "Performance",
+            "customer": {
+                "name": "Noel Ibarra",
+                "email": "noel.ibarra@email.com"
+            },
+            "notes": [
+                {
+                    "author": "Ali Reyes",
+                    "message": "Deployed query optimization. Load time reduced to under 3 seconds. Customer confirmed fix.",
+                    "created_at": "2026-07-21T16:00:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "9",
+        "ticket_number": "TCK-0009",
+        "subject": "Two-factor authentication codes not arriving",
+        "priority": "urgent",
+        "status": "open",
+        "assignee": null,
+        "created_at": "2026-07-30T20:05:00+08:00",
+        "updated_at": "2026-07-30T20:05:00+08:00",
+        "metadata": {
+            "description": "Customer locked out of account because SMS 2FA codes are not being received.",
+            "category": "Account Access",
+            "customer": {
+                "name": "Ella Gonzales",
+                "email": "ella.gonzales@email.com",
+                "phone": "+63 920 887 4432"
+            },
+            "notes": []
+        }
+    },
+    {
+        "id": "10",
+        "ticket_number": "TCK-0010",
+        "subject": "Incorrect tax calculation on checkout",
+        "priority": "high",
+        "status": "in_progress",
+        "assignee": "Dana Lim",
+        "created_at": "2026-07-24T14:50:00+08:00",
+        "updated_at": "2026-07-29T09:30:00+08:00",
+        "metadata": {
+            "description": "VAT is being applied to customers outside the region where it should not be charged.",
+            "category": "Billing",
+            "customer": {
+                "name": "Kevin Aquino",
+                "email": "kevin.aquino@email.com"
+            },
+            "notes": [
+                {
+                    "author": "Dana Lim",
+                    "message": "Escalated to billing engineering team, tax rules being reviewed per region.",
+                    "created_at": "2026-07-29T09:30:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "11",
+        "ticket_number": "TCK-0011",
+        "subject": "Notification emails going to spam",
+        "priority": "low",
+        "status": "closed",
+        "assignee": "Jamie Cruz",
+        "created_at": "2026-07-18T11:00:00+08:00",
+        "updated_at": "2026-07-19T15:30:00+08:00",
+        "metadata": {
+            "description": "Customer reports that all transactional emails are landing in their spam folder.",
+            "category": "Email Deliverability",
+            "customer": {
+                "name": "Trisha Ramos",
+                "email": "trisha.ramos@email.com"
+            },
+            "notes": [
+                {
+                    "author": "Jamie Cruz",
+                    "message": "Advised customer to whitelist sender domain. Confirmed resolved, ticket closed.",
+                    "created_at": "2026-07-19T15:30:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "12",
+        "ticket_number": "TCK-0012",
+        "subject": "API rate limit errors during peak hours",
+        "priority": "urgent",
+        "status": "open",
+        "assignee": "Ali Reyes",
+        "created_at": "2026-07-30T07:15:00+08:00",
+        "updated_at": "2026-07-30T13:45:00+08:00",
+        "metadata": {
+            "description": "Enterprise customer hitting 429 errors on the API during business hours despite being on a higher rate limit tier.",
+            "category": "API",
+            "customer": {
+                "name": "Enzo Villarama",
+                "email": "enzo.villarama@company.com"
+            },
+            "notes": [
+                {
+                    "author": "Ali Reyes",
+                    "message": "Checking whether rate limit tier was applied correctly to their API key.",
+                    "created_at": "2026-07-30T13:45:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "13",
+        "ticket_number": "TCK-0013",
+        "subject": "How do I add team members to my workspace?",
+        "priority": "low",
+        "status": "resolved",
+        "assignee": "Pat Santos",
+        "created_at": "2026-07-19T09:00:00+08:00",
+        "updated_at": "2026-07-19T09:40:00+08:00",
+        "metadata": {
+            "description": "New customer needs guidance on inviting team members and setting roles.",
+            "category": "Onboarding",
+            "customer": {
+                "name": "Sophia Dizon",
+                "email": "sophia.dizon@email.com"
+            },
+            "notes": [
+                {
+                    "author": "Pat Santos",
+                    "message": "Walked customer through workspace settings and shared help doc link.",
+                    "created_at": "2026-07-19T09:40:00+08:00"
+                }
+            ]
+        }
+    },
+    {
+        "id": "14",
+        "ticket_number": "TCK-0014",
+        "subject": "Mobile app not syncing offline changes",
+        "priority": "medium",
+        "status": "open",
+        "assignee": null,
+        "created_at": "2026-07-31T06:30:00+08:00",
+        "updated_at": "2026-07-31T06:30:00+08:00",
+        "metadata": {
+            "description": "Changes made while offline on the mobile app are not syncing once the connection is restored.",
+            "category": "Bug Report",
+            "customer": {
+                "name": "Diego Fernandez",
+                "email": "diego.fernandez@email.com",
+                "phone": "+63 915 334 7789"
+            },
+            "notes": []
+        }
+    },
+    {
+        "id": "15",
+        "ticket_number": "TCK-0015",
+        "subject": "Downgrade subscription plan",
+        "priority": "low",
+        "status": "closed",
+        "assignee": "Dana Lim",
+        "created_at": "2026-07-15T10:20:00+08:00",
+        "updated_at": "2026-07-15T11:05:00+08:00",
+        "metadata": {
+            "description": "Customer wants to downgrade from Pro to Starter plan at the next billing cycle.",
+            "category": "Billing",
+            "customer": {
+                "name": "Patricia Uy",
+                "email": "patricia.uy@email.com"
+            },
+            "notes": [
+                {
+                    "author": "Dana Lim",
+                    "message": "Scheduled downgrade for next billing cycle as requested. Ticket closed.",
+                    "created_at": "2026-07-15T11:05:00+08:00"
+                }
+            ]
+        }
+    }
+]

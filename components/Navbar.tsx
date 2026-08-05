@@ -3,9 +3,10 @@
 import { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import Link from 'next/link';
-import { Button } from './retroui/Button';
+import { Button } from "@/components/retro/button";
 import Image from 'next/image';
 import logo from '@/assets/logo.png';
+import { ModeToggle } from './ModeToggle';
 
 const links = [
   { label: 'Home', href: '/#home' },
@@ -30,11 +31,10 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
   return (
     <div className="fixed w-full top-0 z-40">
       <nav
-        className={`h-16 md:h-18 px-6 md:px-14 flex items-center justify-between transition-all duration-200 ${
-          showSolidBg
-            ? 'bg-white border-b-2'
+        className={`h-16 md:h-18 px-6 md:px-14 flex items-center justify-between transition-all duration-200 ${showSolidBg
+            ? 'bg-white dark:bg-black border-b-2'
             : 'bg-transparent'
-        }`}
+          }`}
       >
         <Link href="/" className="flex items-center gap-2">
           <Image
@@ -43,7 +43,7 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
             className="h-12 w-auto object-contain"
             priority
           />
-          <span className="font-head text-xl text-brand">URange Systems</span>
+          <span className="font-head text-xl text-brand">URange Solutions</span>
         </Link>
 
         <ul className="hidden md:flex items-center gap-4">
@@ -59,8 +59,11 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
           ))}
           <li>
             <Link href="/signup">
-              <Button>Get Started</Button>
+              <Button className='dark:text-white'>Contact Us</Button>
             </Link>
+          </li>
+          <li>
+            <ModeToggle />
           </li>
         </ul>
 
@@ -74,9 +77,8 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
       </nav>
 
       <div
-        className={`md:hidden w-full bg-white overflow-hidden transition-all duration-300 ease-in-out ${
-          isOpen ? 'max-h-96 py-6' : 'max-h-0 py-0'
-        }`}
+        className={`md:hidden w-full bg-white overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 py-6' : 'max-h-0 py-0'
+          }`}
       >
         <ul className="flex flex-col items-center gap-4 px-8">
           {links.map((l) => (
