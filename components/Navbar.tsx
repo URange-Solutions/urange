@@ -11,7 +11,7 @@ import { ModeToggle } from './ModeToggle';
 const links = [
   { label: 'Home', href: '/#home' },
   { label: 'About', href: '/#about' },
-  { label: 'Blog', href: '/blog' },
+  { label: 'Blog', href: '/#blog' },
   { label: 'Products', href: '/#products' },
 ];
 
@@ -31,9 +31,9 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
   return (
     <div className="fixed w-full top-0 z-40">
       <nav
-        className={`h-16 md:h-18 px-6 md:px-14 flex items-center justify-between transition-all duration-200 ${showSolidBg
-            ? 'bg-white dark:bg-black border-b-2'
-            : 'bg-transparent'
+        className={`h-20 px-6 md:px-14 flex items-center justify-between transition-all duration-200 ${showSolidBg
+          ? 'bg-white dark:bg-black border-b-2'
+          : 'bg-transparent'
           }`}
       >
         <Link href="/" className="flex items-center gap-2">
@@ -58,7 +58,7 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
             </li>
           ))}
           <li>
-            <Link href="/signup">
+            <Link href="/#contact">
               <Button className='dark:text-white'>Contact Us</Button>
             </Link>
           </li>
@@ -66,14 +66,16 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
             <ModeToggle />
           </li>
         </ul>
-
-        <Button
-          className="px-1.5 py-1.5 md:hidden"
-          onClick={() => setIsOpen((prev) => !prev)}
-          aria-label={isOpen ? 'Close menu' : 'Open menu'}
-        >
-          {isOpen ? <X size={20} /> : <Menu size={20} />}
-        </Button>
+        <div className="md:hidden flex flex-row items-center gap-4">
+          <ModeToggle />
+          <Button
+            className="px-1.5 py-1.5 "
+            onClick={() => setIsOpen((prev) => !prev)}
+            aria-label={isOpen ? 'Close menu' : 'Open menu'}
+          >
+            {isOpen ? <X size={20} /> : <Menu size={20} />}
+          </Button>
+        </div>
       </nav>
 
       <div
@@ -93,8 +95,8 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
             </li>
           ))}
           <li className="w-full pt-2 border-t border-neutral-200">
-            <Link href="/signup" className="flex justify-center">
-              <Button className="w-full">Get Started</Button>
+            <Link href="/#contact" className="flex justify-center">
+              <Button className="w-full">Contact Us</Button>
             </Link>
           </li>
         </ul>

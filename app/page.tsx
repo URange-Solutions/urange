@@ -130,12 +130,9 @@ const services = [
 const partners = [
   "Bulacan State University",
   "SM Foundation",
-  "Barangay San Jose",
-  "St. Mary's College",
   "Meralco Foundation",
   "DICT Region III",
-  "Coop Bulacan",
-  "Rotary Club Malolos",
+  "Note:All is dummy",
 ];
 
 const blogPosts = [
@@ -170,7 +167,7 @@ export default function Landing() {
       <section id="home">
         <HeroBackground>
           <div className="min-h-[calc(100dvh+80px)] justify-center flex flex-col mx-6">
-            <div className=" flex flex-col md:flex-row justify-between items-center mx-6 md:mx-24 gap-10 md:gap-4 mt-36 mb-24">
+            <div className=" flex flex-col md:flex-row justify-between items-center md:mx-24 gap-10 md:gap-4 mt-36 mb-24">
               <div className="max-w-2xl text-left mt-16 md:mt-0 overflow-hidden">
                 <Text className="text-brand font-head text-5xl md:text-6xl leading-12 md:leading-16 animate-hero-in [animation-delay:0ms]">
                   <span className="text-black dark:text-white">
@@ -199,14 +196,14 @@ export default function Landing() {
             <div className="relative py-10 md:py-14 overflow-hidden">
 
               <div className="relative">
-                <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-32 bg-gradient-to-r from-background to-transparent z-10" />
-                <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-32 bg-gradient-to-l from-background to-transparent z-10" />
+                <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-32 dark:bg-linear-to-r from-background to-transparent z-10" />
+                <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-32 dark:bg-linear-to-l from-background to-transparent z-10" />
 
                 <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
                   {[...partners, ...partners].map((name, idx) => (
                     <div
                       key={idx}
-                      className="shrink-0 mx-3 border-2 border-border px-8 py-4 flex items-center justify-center"
+                      className="shrink-0 mx-3 px-8 py-4 flex items-center justify-center"
                     >
                       <p className="font-head text-sm md:text-base tracking-wide text-neutral-500 dark:text-neutral-400 whitespace-nowrap">
                         {name}
