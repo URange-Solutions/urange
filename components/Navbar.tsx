@@ -11,8 +11,9 @@ import { ModeToggle } from './ModeToggle';
 const links = [
   { label: 'Home', href: '/#home' },
   { label: 'About', href: '/#about' },
-  { label: 'Blog', href: '/#blog' },
+  { label: 'Services', href: '/#services' },
   { label: 'Products', href: '/#products' },
+  { label: 'Blog', href: '/#blog' },
 ];
 
 export function Navbar({ isLanding }: { isLanding?: boolean }) {
