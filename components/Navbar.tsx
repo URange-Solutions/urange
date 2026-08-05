@@ -79,7 +79,7 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
       </nav>
 
       <div
-        className={`md:hidden w-full bg-white overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 py-6' : 'max-h-0 py-0'
+        className={`md:hidden w-full bg-white dark:bg-black overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 py-6' : 'max-h-0 py-0'
           }`}
       >
         <ul className="flex flex-col items-center gap-4 px-8">
@@ -94,7 +94,7 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
               </Link>
             </li>
           ))}
-          <li className="w-full pt-2 border-t border-neutral-200">
+          <li className="w-full pt-2 border-t border-border">
             <Link href="/#contact" className="flex justify-center">
               <Button className="w-full">Contact Us</Button>
             </Link>
