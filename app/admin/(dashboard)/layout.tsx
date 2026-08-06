@@ -2,9 +2,19 @@ import { AppSidebar } from "@/components/dashboard/admin/app-sidebar"
 import { SiteHeader } from "@/components/dashboard/admin/site-header"
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { getAdminSession } from "@/lib/auth";
+import { Metadata } from "next";
 import { ReactNode } from "react"
 
-export default async function DashboardLayout({ children }: { children: ReactNode }) {
+
+export const metadata: Metadata = {
+  title: "URange Solutions | Admin Panel",
+  description: "Manage URange Solutions informations.",
+  icons: {
+    icon: '/icon.png'
+  }
+};
+
+export default async function AdminDashboardLayout({ children }: { children: ReactNode }) {
     const session = await getAdminSession();
 
     if(!session?.admins) return null;

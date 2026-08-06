@@ -1,3 +1,6 @@
+import { db } from "@/database";
+import { blogs } from "@/database/schema";
+import { eq, desc } from "drizzle-orm";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Hero } from "@/components/sections/Hero";
@@ -8,7 +11,13 @@ import { Blogs } from "@/components/sections/Blogs";
 import { CTA } from "@/components/sections/CTA";
 import { Contact } from "@/components/sections/Contact";
 
-export default function Landing() {
+export default async function Landing() {
+  const latestBlogs = await db.query.blogs.findMany({
+    where: eq(blogs.is_draft, true),
+    orderBy: [desc(blogs.created_at)],
+    limit: 3,
+  });
+
   return (
     <main>
       <Navbar isLanding />
@@ -16,7 +25,7 @@ export default function Landing() {
       <About />
       <Services />
       <Products />
-      <Blogs />
+      <Blogs blogs={latestBlogs} />
       <CTA />
       <Contact />
       <Footer />

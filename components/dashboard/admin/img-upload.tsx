@@ -1,14 +1,23 @@
 import { Label } from "@/components/ui/label"
-import { ImageIcon, Plus, Upload, X } from "lucide-react"
-import { useRef } from "react"
+import { ImageIcon, Loader2, Plus, Upload, X } from "lucide-react"
+import { useRef, useState } from "react"
 
-function readFileAsDataUrl(file: File): Promise<string> {
-    return new Promise((resolve, reject) => {
-        const reader = new FileReader()
-        reader.onload = () => resolve(reader.result as string)
-        reader.onerror = () => reject(reader.error)
-        reader.readAsDataURL(file)
+async function uploadFile(file: File): Promise<string> {
+    const formData = new FormData()
+    formData.append("file", file)
+
+    const res = await fetch("/api/upload", {
+        method: "POST",
+        body: formData,
     })
+
+    const data = await res.json().catch(() => null)
+
+    if (!res.ok) {
+        throw new Error(data?.error || data?.message || "Upload failed")
+    }
+
+    return data.url as string
 }
 
 export function MultiImageUpload({
@@ -25,13 +34,24 @@ export function MultiImageUpload({
     thumbnailClassName?: string
 }) {
     const inputRef = useRef<HTMLInputElement>(null)
+    const [isUploading, setIsUploading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     async function handleFiles(e: React.ChangeEvent<HTMLInputElement>) {
         const files = e.target.files
         if (!files || files.length === 0) return
-        const dataUrls = await Promise.all(Array.from(files as FileList).map((file) => readFileAsDataUrl(file)))
-        onChange([...values, ...dataUrls])
-        e.target.value = ""
+
+        setError(null)
+        setIsUploading(true)
+        try {
+            const urls = await Promise.all(Array.from(files as FileList).map((file) => uploadFile(file)))
+            onChange([...values, ...urls])
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Upload failed")
+        } finally {
+            setIsUploading(false)
+            e.target.value = ""
+        }
     }
 
     function removeAt(index: number) {
@@ -58,13 +78,28 @@ export function MultiImageUpload({
                 <button
                     type="button"
                     onClick={() => inputRef.current?.click()}
-                    className={`flex shrink-0 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border text-muted-foreground transition-colors hover:border-foreground/40 hover:bg-muted/50 hover:text-foreground ${thumbnailClassName}`}
+                    disabled={isUploading}
+                    className={`flex shrink-0 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border text-muted-foreground transition-colors hover:border-foreground/40 hover:bg-muted/50 hover:text-foreground disabled:cursor-not-allowed disabled:opacity-60 ${thumbnailClassName}`}
                 >
-                    <Plus className="size-4" aria-hidden="true" />
-                    <span className="text-[10px] font-medium">Add</span>
+                    {isUploading ? (
+                        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                    ) : (
+                        <Plus className="size-4" aria-hidden="true" />
+                    )}
+                    <span className="text-[10px] font-medium">{isUploading ? "Uploading" : "Add"}</span>
                 </button>
-                <input ref={inputRef} id={id} type="file" accept="image/*" multiple className="hidden" onChange={handleFiles} />
+                <input
+                    ref={inputRef}
+                    id={id}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    className="hidden"
+                    onChange={handleFiles}
+                    disabled={isUploading}
+                />
             </div>
+            {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
     )
 }
@@ -85,13 +120,24 @@ export function SingleImageUpload({
     rounded?: string
 }) {
     const inputRef = useRef<HTMLInputElement>(null)
+    const [isUploading, setIsUploading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
 
     async function handleFile(e: React.ChangeEvent<HTMLInputElement>) {
         const file = e.target.files?.[0]
         if (!file) return
-        const dataUrl = await readFileAsDataUrl(file)
-        onChange(dataUrl)
-        e.target.value = ""
+
+        setError(null)
+        setIsUploading(true)
+        try {
+            const url = await uploadFile(file)
+            onChange(url)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Upload failed")
+        } finally {
+            setIsUploading(false)
+            e.target.value = ""
+        }
     }
 
     return (
@@ -101,7 +147,8 @@ export function SingleImageUpload({
                 <button
                     type="button"
                     onClick={() => inputRef.current?.click()}
-                    className="flex size-full items-center justify-center bg-muted transition-colors hover:bg-muted/70"
+                    disabled={isUploading}
+                    className="flex size-full items-center justify-center bg-muted transition-colors hover:bg-muted/70 disabled:cursor-not-allowed"
                 >
                     {value ? (
                         <img src={value} alt="" className="size-full object-cover" />
@@ -113,14 +160,21 @@ export function SingleImageUpload({
                     )}
                 </button>
 
-                {value && (
+                {isUploading && (
+                    <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5 bg-background/80 text-xs font-medium backdrop-blur-[1px]">
+                        <Loader2 className="size-4 animate-spin" aria-hidden="true" />
+                        Uploading...
+                    </div>
+                )}
+
+                {!isUploading && value && (
                     <div className="pointer-events-none absolute inset-0 flex items-center justify-center gap-1.5 bg-background/70 text-xs font-medium opacity-0 backdrop-blur-[1px] transition-opacity group-hover:opacity-100">
                         <Upload className="size-3.5" aria-hidden="true" />
                         Replace
                     </div>
                 )}
 
-                {value && (
+                {!isUploading && value && (
                     <button
                         type="button"
                         onClick={() => onChange("")}
@@ -131,8 +185,17 @@ export function SingleImageUpload({
                     </button>
                 )}
 
-                <input ref={inputRef} id={id} type="file" accept="image/*" className="hidden" onChange={handleFile} />
+                <input
+                    ref={inputRef}
+                    id={id}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleFile}
+                    disabled={isUploading}
+                />
             </div>
+            {error && <p className="text-xs text-destructive">{error}</p>}
         </div>
     )
 }

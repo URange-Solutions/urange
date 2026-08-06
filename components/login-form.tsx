@@ -60,7 +60,7 @@ export function LoginForm({
             <div className="relative flex items-center gap-3">
               <Image src={logo} alt="URange Logo" className="h-9 w-9" />
               <span className="font-heading text-lg font-semibold tracking-tight text-white">
-                URange Systems
+                URange Solutions
               </span>
             </div>
 
@@ -79,13 +79,16 @@ export function LoginForm({
                 <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-400" />
               </span>
               All systems are operational
-              <span className="ml-auto text-white/30">v2.4.1</span>
+              <span className="ml-auto text-white/30">v1.0.0</span>
             </div>
           </div>
 
           <CardContent className="flex flex-col justify-center bg-background p-8 sm:p-10">
-            <div className="mb-8 flex flex-col items-center gap-2 text-center md:hidden">
-              <Image src={logo} alt="URange Logo" className="h-10 w-10" />
+            <div className="mb-8 flex flex-row justify-center items-center gap-2 text-center md:hidden">
+              <Image src={logo} alt="URange Logo" className="h-14 w-14" />
+               <span className="font-heading text-2xl font-semibold tracking-tight text-white">
+                URange Solutions
+              </span>
             </div>
 
             <div className="mb-6 flex items-center gap-2">
