@@ -9,7 +9,6 @@ import { BlogPostNav } from "@/components/blog/BlogPostNav";
 import { Footer } from "@/components/Footer";
 
 interface PageProps {
-  // Next.js 15: route params are now async and must be awaited.
   params: Promise<{ slug: string }>;
 }
 

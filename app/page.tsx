@@ -13,7 +13,7 @@ import { Contact } from "@/components/sections/Contact";
 
 export default async function Landing() {
   const latestBlogs = await db.query.blogs.findMany({
-    where: eq(blogs.is_draft, true),
+    where: eq(blogs.is_draft, false),
     orderBy: [desc(blogs.created_at)],
     limit: 3,
   });
