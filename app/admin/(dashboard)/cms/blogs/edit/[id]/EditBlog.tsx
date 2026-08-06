@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label"
 import { SingleImageUpload } from "@/components/dashboard/admin/img-upload"
 import { MarkdownEditor } from "@/components/dashboard/admin/products/markdown-editor"
 import { useRouter } from "next/navigation";
-import { createBlog } from "@/actions/blogs";
+import { createBlog, updateBlog } from "@/actions/blogs";
 
 type BlogStatus = "live" | "hidden"
 
@@ -137,13 +137,29 @@ function TagsInput({
     )
 }
 
-export default function NewBlog() {
-    const [form, setForm] = useState<BlogFormValues>({
+function normalizeForm(form: BlogFormValues) {
+    return JSON.stringify({
+        ...form,
+        tags: [...form.tags].sort(),
+    })
+}
+
+export default function EditBlog({
+    blogId,
+    initialData,
+}: {
+    blogId: string
+    initialData: Partial<BlogFormValues>
+}) {
+    const [initialForm] = useState<BlogFormValues>({
         ...EMPTY_BLOG_FORM,
-    });
+        ...initialData,
+    })
+    const [form, setForm] = useState<BlogFormValues>(initialForm)
     const [isSubmitting, setIsSubmitting] = useState(false)
     const [error, setError] = useState<string | null>(null)
     const router = useRouter();
+    const isDirty = normalizeForm(form) !== normalizeForm(initialForm)
 
     async function handleSubmit(event: React.FormEvent) {
         event.preventDefault()
@@ -160,23 +176,23 @@ export default function NewBlog() {
 
         setIsSubmitting(true)
         try {
-            const result =
-                await createBlog({
-                    title: form.title,
-                    category: form.category,
-                    tags: form.tags,
-                    description: form.description,
-                    bannerUrl: form.bannerImage,
-                    content: form.content,
-                    isDraft: form.status === "hidden",
-                })
+            const result = await updateBlog({
+                      id: blogId!,
+                      title: form.title,
+                      category: form.category,
+                      tags: form.tags,
+                      description: form.description,
+                      bannerUrl: form.bannerImage,
+                      content: form.content,
+                      isDraft: form.status === "hidden",
+                  })
 
             if (!result.success) {
                 setError(result.error)
                 return
             }
 
-            router.push("/admin/cms/blogs")
+            router.push("/admin/cms/blogs") 
             router.refresh()
         } catch (err) {
             console.error("Failed to publish blog:", err)
@@ -189,8 +205,8 @@ export default function NewBlog() {
     return (
         <div className="flex flex-col gap-6 mx-6 mt-6">
             <EditorHeader
-                title={"New Blog"}
-                subtitle="Create, edit, and publish blog posts for URange."
+                title={"Edit Blog"}
+                subtitle="Edit blog posts for URange."
             />
 
             <form onSubmit={handleSubmit} className="flex flex-col gap-6">
@@ -267,9 +283,9 @@ export default function NewBlog() {
                     <Button type="button" variant="outline" onClick={() => router.back()} disabled={isSubmitting}>
                         Cancel
                     </Button>
-                    <Button type="submit" disabled={isSubmitting}>
+                    <Button type="submit" disabled={isSubmitting || !isDirty}>
                         {isSubmitting && <Loader2 className="mr-2 size-4 animate-spin" aria-hidden="true" />}
-                        {isSubmitting ? "Publishing..." : "Publish Blog"}
+                        {isSubmitting ? "Saving..." : "Save Changes"}
                     </Button>
                 </div>
             </form>

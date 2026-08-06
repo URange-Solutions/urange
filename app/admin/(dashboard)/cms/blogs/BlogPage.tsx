@@ -9,6 +9,7 @@ import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card"
 import { useRouter, usePathname } from "next/navigation"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { deleteBlog } from "@/actions/blogs"
+import { DeleteConfirmDialog } from "@/components/modals/DeleteConfirmModal"
 
 type BlogRow = {
     id: string
@@ -41,6 +42,7 @@ export default function BlogManagementPage({
     const [statusFilter, setStatusFilter] = useState<StatusFilter>(initialStatus)
     const [isPending, startTransition] = useTransition()
     const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+    const [deleteTarget, setDeleteTarget] = useState<BlogRow | null>(null)
 
     const router = useRouter()
     const pathname = usePathname()
@@ -56,7 +58,6 @@ export default function BlogManagementPage({
         })
     }
 
-    // debounce the search input so we're not hitting the server on every keystroke
     function handleQueryChange(value: string) {
         setQuery(value)
         if (debounceRef.current) clearTimeout(debounceRef.current)
@@ -76,11 +77,18 @@ export default function BlogManagementPage({
         }
     }, [])
 
-    function handleDelete(id: string) {
+    function requestDelete(blog: BlogRow) {
+        setDeleteTarget(blog)
+    }
+
+    function confirmDelete() {
+        if (!deleteTarget) return
+        const id = deleteTarget.id
         setPendingDeleteId(id)
         startTransition(async () => {
             try {
                 await deleteBlog(id)
+                setDeleteTarget(null)
             } catch (err) {
                 console.error("Failed to delete blog:", err)
             } finally {
@@ -220,8 +228,8 @@ export default function BlogManagementPage({
                                                 <Button
                                                     variant="ghost"
                                                     size="sm"
-                                                    disabled={isDeleting}
-                                                    onClick={() => handleDelete(blog.id)}
+                                                    disabled={isPending && pendingDeleteId === blog.id}
+                                                    onClick={() => requestDelete(blog)}
                                                     className="gap-1.5 text-destructive hover:text-destructive"
                                                 >
                                                     <Trash2 className="size-3.5" aria-hidden="true" />
@@ -236,6 +244,17 @@ export default function BlogManagementPage({
                     )}
                 </div>
             </div>
+
+            <DeleteConfirmDialog
+                open={Boolean(deleteTarget)}
+                onOpenChange={(open) => {
+                    if (!open) setDeleteTarget(null)
+                }}
+                onConfirm={confirmDelete}
+                title="Delete post"
+                itemName={deleteTarget?.title}
+                isLoading={isPending && pendingDeleteId === deleteTarget?.id}
+            />
         </div>
     )
 }

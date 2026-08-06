@@ -108,7 +108,7 @@ export async function updateBlog(input: UpdateBlogInput) {
     };
 
     if (input.category !== undefined) updateValues.category = input.category;
-    if (input.content !== undefined) updateValues.category = input.content;
+    if (input.content !== undefined) updateValues.content = input.content;
     if (input.tags !== undefined) updateValues.tags = input.tags;
     if (input.description !== undefined) updateValues.description = input.description;
     if (input.bannerUrl !== undefined) updateValues.banner_url = input.bannerUrl;
