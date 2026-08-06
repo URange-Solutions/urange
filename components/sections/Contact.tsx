@@ -1,8 +1,104 @@
+"use client";
+
+import { useState } from "react";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogDescription,
+} from "@/components/ui/dialog";
 import { Button } from "../retro/button";
 import { Reveal } from "../Reveal";
 import { Text } from "../ui/Text";
 
 export function Contact() {
+    const [loading, setLoading] = useState(false);
+
+    const [form, setForm] = useState({
+        name: "",
+        email: "",
+        subject: "",
+        message: "",
+    });
+
+    const [dialog, setDialog] = useState({
+        open: false,
+        title: "",
+        description: "",
+    });
+    const handleChange = (
+        e: React.ChangeEvent<
+            HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+        >
+    ) => {
+        setForm((prev) => ({
+            ...prev,
+            [e.target.name]: e.target.value,
+        }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (
+            !form.name.trim() ||
+            !form.email.trim() ||
+            !form.subject.trim() ||
+            !form.message.trim()
+        ) {
+            setDialog({
+                open: true,
+                title: "Missing Information",
+                description: "Please complete all fields.",
+            });
+            return;
+        }
+
+        try {
+            setLoading(true);
+
+            const res = await fetch("/api/contact", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(form),
+            });
+
+            const data = await res.json();
+
+            if (!res.ok) {
+                throw new Error(data.message);
+            }
+
+            setDialog({
+                open: true,
+                title: "Message Sent",
+                description:
+                    "Thank you for contacting us. We'll get back to you as soon as possible.",
+            });
+
+            setForm({
+                name: "",
+                email: "",
+                subject: "",
+                message: "",
+            });
+        } catch (err) {
+            setDialog({
+                open: true,
+                title: "Unable to Send",
+                description:
+                    err instanceof Error
+                        ? err.message
+                        : "Something went wrong. Please try again later.",
+            });
+        } finally {
+            setLoading(false);
+        }
+    };
+
     return (
         <section id="contact" className="py-24 bg-background border-t-4 border-black">
             <Reveal className="mx-6 md:mx-24">
@@ -23,7 +119,7 @@ export function Contact() {
 
                         <div className="flex flex-col gap-4">
                             {[
-                                { label: "EMAIL", value: "urangesystems@proton.me" },
+                                { label: "EMAIL", value: "contact@urange.tech" },
                                 { label: "PHONE", value: "+63 924 477 2453" },
                                 { label: "LOCATION", value: "Bulacan, Philippines" },
                             ].map((item) => (
@@ -40,13 +136,16 @@ export function Contact() {
                         </div>
                     </div>
 
-                    <form className="flex flex-col gap-4">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
                         <div className="grid sm:grid-cols-2 gap-4">
                             <div className="flex flex-col gap-1">
                                 <label className="font-head text-xs tracking-widest text-neutral-500 dark:text-neutral-400">
                                     NAME
                                 </label>
                                 <input
+                                    name="name"
+                                    value={form.name}
+                                    onChange={handleChange}
                                     type="text"
                                     placeholder="Juan dela Cruz"
                                     className="border-2 border-input bg-background text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors"
@@ -57,6 +156,9 @@ export function Contact() {
                                     EMAIL
                                 </label>
                                 <input
+                                    name="email"
+                                    value={form.email}
+                                    onChange={handleChange}
                                     type="email"
                                     placeholder="juan@company.com"
                                     className="border-2 border-input bg-background text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors"
@@ -68,7 +170,12 @@ export function Contact() {
                             <label className="font-head text-xs tracking-widest text-neutral-500 dark:text-neutral-400">
                                 WHAT DO YOU WANT?
                             </label>
-                            <select className="border-2 border-input px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-background text-black dark:text-white appearance-none">
+                            <select
+                                name="subject"
+                                value={form.subject}
+                                onChange={handleChange}
+                                className="border-2 border-input px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors bg-background text-black dark:text-white appearance-none"
+                            >
                                 <option value="">Select a category</option>
                                 <option>Web Development</option>
                                 <option>Mobile Development</option>
@@ -83,18 +190,39 @@ export function Contact() {
                                 DETAILS
                             </label>
                             <textarea
+                                name="message"
+                                value={form.message}
+                                onChange={handleChange}
                                 rows={5}
                                 placeholder="Describe the process idea or the problem you want us to solve, who it affects, and how often..."
                                 className="border-2 border-input bg-background text-black dark:text-white placeholder:text-neutral-400 dark:placeholder:text-neutral-500 px-4 py-3 text-sm focus:outline-none focus:border-brand transition-colors resize-none"
                             />
                         </div>
 
-                        <Button type="submit" className="py-3 font-head tracking-widest">
-                            SEND MESSAGE
+                        <Button type="submit" disabled={loading} className="py-3 font-head tracking-widest">
+                            {loading ? "SENDING..." : "SEND MESSAGE"}
                         </Button>
                     </form>
                 </div>
             </Reveal>
+            <Dialog
+                open={dialog.open}
+                onOpenChange={(open) =>
+                    setDialog((prev) => ({
+                        ...prev,
+                        open,
+                    }))
+                }
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>{dialog.title}</DialogTitle>
+                        <DialogDescription>
+                            {dialog.description}
+                        </DialogDescription>
+                    </DialogHeader>
+                </DialogContent>
+            </Dialog>
         </section>
     )
 }
