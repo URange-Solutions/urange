@@ -16,8 +16,6 @@ export default async function proxy(req: NextRequest) {
 
     const session = await getAdminSession();
 
-    console.log(session)
-
     if (!session) {
       if (authPages.includes(pathname)) {
         return NextResponse.next();

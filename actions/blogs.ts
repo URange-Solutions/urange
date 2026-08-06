@@ -6,10 +6,6 @@ import { getAdminSession } from "@/lib/auth";
 import { eq, ne, and } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
 
-async function getCurrentAdminId(): Promise<string> {
-  throw new Error("getCurrentAdminId() is not implemented — wire this up to your auth solution");
-}
-
 function slugify(title: string): string {
   return title
     .toLowerCase()
@@ -42,6 +38,7 @@ export type CreateBlogInput = {
   category: string;
   tags?: string[];
   description?: string;
+  content: string;
   bannerUrl?: string;
   isDraft?: boolean;
 };
@@ -66,6 +63,7 @@ export async function createBlog(input: CreateBlogInput) {
         author_id: session.admins.id,
         slug,
         category: input.category,
+        content: input.content,
         tags: input.tags ?? [],
         title: input.title,
         description: input.description ?? null,
@@ -89,6 +87,7 @@ export type UpdateBlogInput = {
   category?: string;
   tags?: string[];
   description?: string;
+  content: string;
   bannerUrl?: string;
   isDraft?: boolean;
 };
@@ -109,6 +108,7 @@ export async function updateBlog(input: UpdateBlogInput) {
     };
 
     if (input.category !== undefined) updateValues.category = input.category;
+    if (input.content !== undefined) updateValues.category = input.content;
     if (input.tags !== undefined) updateValues.tags = input.tags;
     if (input.description !== undefined) updateValues.description = input.description;
     if (input.bannerUrl !== undefined) updateValues.banner_url = input.bannerUrl;

@@ -25,7 +25,7 @@ type BlogItem = {
     tags: string[]
     category: string
     description: string
-    documentation: string
+    content: string
     order: number
     status: BlogStatus
     bannerImage: string
@@ -38,7 +38,7 @@ const EMPTY_BLOG_FORM: BlogFormValues = {
     tags: [],
     category: "",
     description: "",
-    documentation: "",
+    content: "",
     status: "hidden",
     bannerImage: "",
 }
@@ -177,6 +177,7 @@ export default function NewBlog({
                       tags: form.tags,
                       description: form.description,
                       bannerUrl: form.bannerImage,
+                      content: form.content,
                       isDraft: form.status === "hidden",
                   })
                 : await createBlog({
@@ -185,6 +186,7 @@ export default function NewBlog({
                       tags: form.tags,
                       description: form.description,
                       bannerUrl: form.bannerImage,
+                      content: form.content,
                       isDraft: form.status === "hidden",
                   })
 
@@ -193,7 +195,7 @@ export default function NewBlog({
                 return
             }
 
-            router.push("/admin/blogs") // adjust to your actual blogs list route
+            router.push("/admin/cms/blogs") 
             router.refresh()
         } catch (err) {
             console.error("Failed to publish blog:", err)
@@ -264,10 +266,10 @@ export default function NewBlog({
                         </div>
 
                         <MarkdownEditor
-                            id="sc-documentation"
+                            id="sc-content"
                             label="Content"
-                            value={form.documentation}
-                            onChange={(value) => setForm((f) => ({ ...f, documentation: value }))}
+                            value={form.content}
+                            onChange={(value) => setForm((f) => ({ ...f, content: value }))}
                             placeholder="Document what this highlight is, key features, and anything related — this replaces linking out to a separate blog post."
                             rows={10}
                         />

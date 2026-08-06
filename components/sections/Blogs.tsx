@@ -52,7 +52,7 @@ export function Blogs({ blogs }: BlogsProps) {
         <div className="grid md:grid-cols-3 gap-px bg-neutral-700">
             {blogs.map((post) => (
               <Link
-                href={post.id}
+                href={`/blogs/${post.slug}`}
                 key={post.title}
                 className="bg-neutral-900 p-6 flex flex-col gap-4 hover:bg-neutral-800 transition-colors group"
               >

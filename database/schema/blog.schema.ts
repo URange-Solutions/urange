@@ -9,6 +9,7 @@ export const blogs = pgTable("blogs", {
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
   is_draft: boolean('is_draft').default(false),
   title: text("title").notNull(),
+  content: text("content").notNull(),
   description: text("description"),
   banner_url: text("banner_url"),
   updated_at: timestamp("updated_at", { mode: 'string' }).defaultNow(),
