@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { HeroBackground } from "../HeroBackground";
 import { HeroCarousel } from "../HeroCarousel";
 import { Button } from "../retro/button";
@@ -32,10 +33,14 @@ export function Hero() {
                                 reliable systems through technology.
                             </Text>
                             <div className="flex flex-row justify-start gap-4 mt-4 animate-hero-in [animation-delay:240ms]">
-                                <Button className="px-6 py-2.5 dark:text-white">Contact Us</Button>
-                                <Button className="px-6 py-2.5" variant={"outline"}>
-                                    Learn More
-                                </Button>
+                                <Link href={"/#contact"}>
+                                    <Button className="px-6 py-2.5 dark:text-white">Contact Us</Button>
+                                </Link>
+                                <Link href={"/#about"}>
+                                    <Button className="px-6 py-2.5" variant={"outline"}>
+                                        Learn More
+                                    </Button>
+                                </Link>
                             </div>
                         </div>
                         <div className="mx-4 hidden md:flex w-full md:w-auto justify-center animate-hero-in-side [animation-delay:180ms]">
@@ -64,6 +69,6 @@ export function Hero() {
                     </div>
                 </div>
             </HeroBackground>
-        </section>
+        </section >
     )
 }
