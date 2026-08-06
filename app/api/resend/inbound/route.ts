@@ -1,35 +1,30 @@
 import { NextRequest, NextResponse } from "next/server";
+import { Resend } from "resend";
 import { db } from "@/database";
 import { inboxMessages } from "@/database/schema";
 
+const resend = new Resend(process.env.RESEND_API_KEY);
+
 export async function POST(req: NextRequest) {
-    const secret = req.headers.get("x-resend-secret");
+  const event = await req.json();
 
-    // if (secret !== process.env.RESEND_WEBHOOK_SECRET) {
-    //     return NextResponse.json(
-    //         { message: "Unauthorized" },
-    //         { status: 401 }
-    //     );
-    // }
-
-    const body = await req.json();
-
-    const from = body.from ?? "";
-    const subject = body.subject ?? "(No Subject)";
-    const text = body.text ?? "";
-    const html = body.html ?? "";
-
-    const match = from.match(/(.*)<(.+)>/);
-
-    const name = match?.[1]?.trim().replace(/^"|"$/g, "") || from;
-    const email = match?.[2]?.trim() || from;
-
-    await db.insert(inboxMessages).values({
-        name,
-        email,
-        subject,
-        message: text || html,
-    });
-
+  if (event.type !== "email.received") {
     return NextResponse.json({ success: true });
+  }
+
+  const { data: email } = await resend.emails.receiving.get(
+    event.data.email_id
+  );
+
+  const from = event.data.from;
+  const subject = event.data.subject ?? "(No Subject)";
+
+  await db.insert(inboxMessages).values({
+    name: from,
+    email: from,
+    subject,
+    message: email?.text || email?.html || "(No content)",
+  });
+
+  return NextResponse.json({ success: true });
 }
