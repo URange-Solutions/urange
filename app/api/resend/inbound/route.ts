@@ -5,12 +5,12 @@ import { inboxMessages } from "@/database/schema";
 export async function POST(req: NextRequest) {
     const secret = req.headers.get("x-resend-secret");
 
-    if (secret !== process.env.RESEND_WEBHOOK_SECRET) {
-        return NextResponse.json(
-            { message: "Unauthorized" },
-            { status: 401 }
-        );
-    }
+    // if (secret !== process.env.RESEND_WEBHOOK_SECRET) {
+    //     return NextResponse.json(
+    //         { message: "Unauthorized" },
+    //         { status: 401 }
+    //     );
+    // }
 
     const body = await req.json();
 
