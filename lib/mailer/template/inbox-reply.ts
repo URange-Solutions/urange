@@ -1,4 +1,4 @@
-const LOGO_URL = "https://www.urange.tech/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo.12lagtoc5dpn0.png&w=1080&q=75"
+const LOGO_URL = "https://www.urange.tech/_next/image?url=%2F_next%2Fstatic%2Fmedia%2Flogo-dark.3qr4r_tld5q7n.png&w=1080&q=75"
 const BRAND_NAME = "URange Solutions"
 const BRAND_COLOR = "#ff2600" 
 const SITE_URL = "https://urange.tech"
@@ -20,7 +20,7 @@ export function markdownToEmailHtml(raw: string): string {
     // inline code
     html = html.replace(
         /`([^`]+)`/g,
-        '<code style="background:#f3f4f6;border-radius:4px;padding:2px 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;">$1</code>'
+        '<code style="background:#f3f4f6;padding:2px 5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:13px;">$1</code>'
     )
     // bold
     html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
@@ -63,10 +63,6 @@ export function markdownToEmailHtml(raw: string): string {
     return html
 }
 
-/* ---------------------------------------------------------------------- */
-/* Full email template                                                     */
-/* ---------------------------------------------------------------------- */
-
 interface ReplyEmailParams {
     toName: string
     originalSubject: string
@@ -86,46 +82,47 @@ export function buildReplyEmailHtml({ toName, originalSubject, body }: ReplyEmai
     <title>Reply to: ${escapeHtml(originalSubject)}</title>
   </head>
   <body style="margin:0;padding:0;background:#f4f4f5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#111827;">
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:32px 16px;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f4f5;padding:24px 12px;">
       <tr>
         <td align="center">
-          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e5e7eb;">
+          <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:680px;background:#ffffff;">
 
             <!-- Header / logo -->
             <tr>
-              <td style="background:${BRAND_COLOR};padding:24px 32px;text-align:left;">
+              <td style="background:${BRAND_COLOR};padding:20px 16px;text-align:left;">
                 <img src="${LOGO_URL}" alt="${BRAND_NAME}" height="28" style="display:block;height:28px;width:auto;border:0;" />
+                <h1 style="color:white;font-weight: bold;font-size: 20px;margin:8px 0 0;">${BRAND_NAME}</h1>
               </td>
             </tr>
 
             <!-- Subject / greeting -->
             <tr>
-              <td style="padding:32px 32px 0;">
+              <td style="padding:24px 16px 0;">
                 <p style="margin:0 0 4px;font-size:13px;color:#6b7280;">Re: ${escapeHtml(originalSubject)}</p>
-                <p style="margin:0 0 20px;font-size:16px;">Hi ${escapeHtml(toName)},</p>
+                <p style="margin:0 0 16px;font-size:16px;">Hi ${escapeHtml(toName)},</p>
               </td>
             </tr>
 
             <!-- Reply body (rendered markdown) -->
             <tr>
-              <td style="padding:0 32px;font-size:15px;color:#1f2937;">
+              <td style="padding:0 16px;font-size:15px;color:#1f2937;">
                 ${bodyHtml}
               </td>
             </tr>
 
             <tr>
-              <td style="padding:8px 32px 32px;">
+              <td style="padding:8px 16px 24px;">
                 <p style="margin:0;font-size:14px;color:#374151;">— The ${BRAND_NAME} Team</p>
               </td>
             </tr>
 
             <!-- Follow-up CTA -->
             <tr>
-              <td style="padding:0 32px 32px;">
+              <td style="padding:0 16px 24px;">
                 <table role="presentation" cellpadding="0" cellspacing="0">
                   <tr>
-                    <td style="border-radius:8px;background:${BRAND_COLOR};">
-                      <a href="${CONTACT_URL}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 20px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;border-radius:8px;">
+                    <td style="background:${BRAND_COLOR};">
+                      <a href="${CONTACT_URL}" target="_blank" rel="noopener noreferrer" style="display:inline-block;padding:10px 20px;font-size:14px;font-weight:600;color:#ffffff;text-decoration:none;">
                         Send us a new message
                       </a>
                     </td>
@@ -136,10 +133,10 @@ export function buildReplyEmailHtml({ toName, originalSubject, body }: ReplyEmai
 
             <!-- Footer -->
             <tr>
-              <td style="background:#fafafa;border-top:1px solid #e5e7eb;padding:20px 32px;">
+              <td style="border-top:1px solid #e5e7eb;padding:16px;">
                 <p style="margin:0 0 6px;font-size:12px;color:#9ca3af;">
                   This is a reply to a message you sent us through
-                  <a href="${SITE_URL}" style="color:#9ca3af;text-decoration:underline;">${BRAND_NAME.toLowerCase()}.tech</a>.
+                  <a href="${SITE_URL}" style="color:#9ca3af;text-decoration:underline;">www.urange.tech</a>.
                 </p>
                 <p style="margin:0;font-size:12px;color:#9ca3af;">
                   This mailbox isn't monitored — if you have a follow-up, please
