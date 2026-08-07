@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useTransition } from "react"
-import { Search, Mail, MailOpen, MailCheck, Trash2, Inbox, Calendar, Reply as ReplyIcon } from "lucide-react"
+import { Search, Mail, MailOpen, MailCheck, Trash2, Inbox, Calendar, Reply as ReplyIcon, RefreshCcw } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -25,7 +25,7 @@ import {
     DialogFooter,
 } from "@/components/ui/dialog"
 import { DeleteConfirmDialog } from "@/components/modals/DeleteConfirmModal"
-import { deleteMessage, markMessageRead, sendReply } from "@/actions/inbox"
+import { deleteMessage, markMessageRead, refreshInbox, sendReply } from "@/actions/inbox"
 
 type MessageRow = {
     id: string
@@ -64,6 +64,7 @@ export default function InboxManagementPage({
     const [replyTarget, setReplyTarget] = useState<MessageRow | null>(null)
     const [replyText, setReplyText] = useState("")
     const [isSendingReply, setIsSendingReply] = useState(false)
+    const [refreshing, setRefreshing] = useState(false)
 
     const router = useRouter()
     const pathname = usePathname()
@@ -167,6 +168,12 @@ export default function InboxManagementPage({
         })
     }
 
+    async function handleRefresh() {    
+        setRefreshing(true);
+        await refreshInbox();
+        setRefreshing(false);
+    }
+
     return (
         <div className="flex flex-1 flex-col">
             <div className="@container/main flex flex-1 flex-col gap-2">
@@ -193,18 +200,22 @@ export default function InboxManagementPage({
                                 className="pl-9"
                             />
                         </div>
-
-                        <Select value={statusFilter} onValueChange={(value) => handleStatusChange(value as StatusFilter)}>
-                            <SelectTrigger className="w-full sm:w-40" aria-label="Filter by status">
-                                <SelectValue placeholder="Filter by status" />
-                            </SelectTrigger>
-                            <SelectContent>
-                                <SelectItem value="all">All messages</SelectItem>
-                                <SelectItem value="unread">Unread</SelectItem>
-                                <SelectItem value="read">Read</SelectItem>
-                                <SelectItem value="replied">Replied</SelectItem>
-                            </SelectContent>
-                        </Select>
+                        <div className="flex flex-row items-center gap-2">
+                            <Button disabled={refreshing} variant={'ghost'} onClick={handleRefresh}>
+                                <RefreshCcw className={refreshing ? "animate-spin" : ""}/>
+                            </Button>
+                            <Select value={statusFilter} onValueChange={(value) => handleStatusChange(value as StatusFilter)}>
+                                <SelectTrigger className="w-full sm:w-40" aria-label="Filter by status">
+                                    <SelectValue placeholder="Filter by status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="all">All messages</SelectItem>
+                                    <SelectItem value="unread">Unread</SelectItem>
+                                    <SelectItem value="read">Read</SelectItem>
+                                    <SelectItem value="replied">Replied</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
                     </div>
 
                     {messages.length === 0 ? (

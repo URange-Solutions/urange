@@ -12,6 +12,9 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 
 const INBOX_PATH = "/admin/inbox"
 
+export async function refreshInbox() {
+    revalidatePath(INBOX_PATH)
+}
 export async function markMessageRead(id: string) {
     await db
         .update(inboxMessages)
