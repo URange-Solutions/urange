@@ -57,9 +57,9 @@ export async function sendReply({
 }) {
     console.log("sendReply", { toEmail, toName, originalSubject, body })
     await resend.emails.send({
-        from: "URange Team <no-reply@urange.tech>",
+        from: "URange Team <noreply@urange.tech>",
         to: toEmail,
-        subject: "Re: " + originalSubject,
+        subject: "Reply  to: " + originalSubject,
         text: body,
     });
 
