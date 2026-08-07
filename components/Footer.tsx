@@ -5,23 +5,27 @@ import { ArrowRight, ArrowUpRight } from "lucide-react";
 const navLinks = [
     { label: "Home", href: "/#home" },
     { label: "About", href: "/#about" },
-    { label: "Blog", href: "/blog" },
+    { label: "Services", href: "/#services" },
     { label: "Products", href: "/#products" },
+    { label: "Blog", href: "/blog" },
     { label: "Contact", href: "/#contact" },
 ];
 
 const products = [
     { label: "EZVote", href: "https://ezvote.vercel.app" },
     { label: "InnrollPH", href: "#" },
+    { label: "HIRAME", href: "#" },
+    { label: "ResQLink", href: "#" },
     { label: "urHOA", href: "#" },
-    { label: "BarangayKo", href: "#" },
     { label: "See More...", href: "/products" },
 ];
 
 const socials = [
-    { label: "GitHub", href: "https://github.com" },
-    { label: "LinkedIn", href: "https://linkedin.com" },
-    { label: "Twitter / X", href: "https://x.com" },
+    { label: "GitHub", href: "#" },
+    { label: "TikTok", href: "#" },
+    { label: "Twitter / X", href: "#" },
+    { label: "Facebook", href: "https://www.facebook.com/urangesolutions" },
+    { label: "Instagram", href: "#" },
 ];
 
 export function Footer() {
@@ -134,7 +138,7 @@ export function Footer() {
                             href="mailto:hello@yourdomain.com"
                             className="text-neutral-400 text-sm hover:text-brand transition-colors break-all"
                         >
-                            urangesystems@proton.me
+                            contact@urange.tech
                         </a>
                         <p className="text-neutral-400 text-sm">+63 924 477 2453</p>
                         <p className="text-neutral-600 text-xs leading-relaxed">
