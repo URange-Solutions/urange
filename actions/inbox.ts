@@ -2,6 +2,7 @@
 
 import { db } from "@/database"
 import { inboxMessages } from "@/database/schema"
+import { buildReplyEmailHtml, buildReplyEmailText } from "@/lib/mailer/template/inbox-reply"
 import { eq } from "drizzle-orm"
 import { revalidatePath } from "next/cache"
 
@@ -59,9 +60,10 @@ export async function sendReply({
     await resend.emails.send({
         from: "URange Team <noreply@urange.tech>",
         to: toEmail,
-        subject: "Reply  to: " + originalSubject,
-        text: body,
-    });
+        subject: "Reply to: " + originalSubject,
+        html: buildReplyEmailHtml({ toName, originalSubject, body }),
+        text: buildReplyEmailText({ toName, originalSubject, body }),
+    })
 
     await db
         .update(inboxMessages)

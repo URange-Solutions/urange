@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useTransition } from "react"
-import { Search, Mail, MailOpen, MailCheck, Trash2, Inbox, Calendar, Reply as ReplyIcon, RefreshCcw } from "lucide-react"
+import { Search, Mail, MailOpen, MailCheck, Trash2, Inbox, Calendar, Reply as ReplyIcon, RefreshCcw, Eye, Pencil, ChevronDown, ChevronUp } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
@@ -48,6 +48,125 @@ interface InboxManagementPageProps {
     initialStatus: StatusFilter
 }
 
+/* ---------------------------------------------------------------------- */
+/* Minimal, dependency-free markdown renderer.                            */
+/* Supports: headers, bold, italic, inline code, links, blockquotes,      */
+/* unordered lists, and paragraphs/line breaks. Input is HTML-escaped     */
+/* first so raw HTML in a message can never be injected.                  */
+/* ---------------------------------------------------------------------- */
+
+function escapeHtml(str: string) {
+    return str
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;")
+}
+
+function mdToHtml(raw: string) {
+    if (!raw) return ""
+    let html = escapeHtml(raw)
+
+    // inline code
+    html = html.replace(/`([^`]+)`/g, '<code class="rounded bg-muted px-1 py-0.5 text-xs">$1</code>')
+    // bold
+    html = html.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    // italic
+    html = html.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>")
+    // links
+    html = html.replace(
+        /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+        '<a href="$2" class="underline text-primary" target="_blank" rel="noopener noreferrer">$1</a>'
+    )
+    // headers
+    html = html.replace(/^### (.*)$/gm, '<h3 class="font-heading text-sm font-semibold mt-2">$1</h3>')
+    html = html.replace(/^## (.*)$/gm, '<h2 class="font-heading text-base font-semibold mt-2">$1</h2>')
+    html = html.replace(/^# (.*)$/gm, '<h1 class="font-heading text-lg font-bold mt-2">$1</h1>')
+    // blockquotes
+    html = html.replace(/^&gt; (.*)$/gm, '<blockquote class="border-l-2 border-border pl-3 italic text-muted-foreground">$1</blockquote>')
+    // unordered list blocks
+    html = html.replace(/(^|\n)((?:[-*] .*(?:\n|$))+)/g, (_match, lead: string, block: string) => {
+        const items = block
+            .trim()
+            .split("\n")
+            .map((line) => line.replace(/^[-*] /, "").trim())
+            .filter(Boolean)
+        return `${lead}<ul class="list-disc pl-5 space-y-0.5">${items.map((i) => `<li>${i}</li>`).join("")}</ul>`
+    })
+    // paragraphs / line breaks (skip blocks that are already block-level HTML)
+    html = html
+        .split(/\n\n+/)
+        .map((block) => {
+            if (/^\s*<(h1|h2|h3|ul|blockquote)/.test(block)) return block
+            return `<p>${block.replace(/\n/g, "<br/>")}</p>`
+        })
+        .join("")
+
+    return html
+}
+
+function MarkdownContent({ content, className }: { content: string; className?: string }) {
+    return (
+        <div
+            className={`text-sm leading-relaxed break-words ${className ?? ""}`}
+            dangerouslySetInnerHTML={{ __html: mdToHtml(content) }}
+        />
+    )
+}
+
+// Collapse threshold: content longer than this (chars) or with many line
+// breaks gets truncated behind a "Show more" toggle.
+const COLLAPSE_CHAR_LIMIT = 400
+const COLLAPSE_LINE_LIMIT = 6
+const COLLAPSED_MAX_HEIGHT = 176 // px, roughly matches the char/line limits above
+
+function isLongContent(content: string) {
+    if (!content) return false
+    const lineCount = content.split("\n").length
+    return content.length > COLLAPSE_CHAR_LIMIT || lineCount > COLLAPSE_LINE_LIMIT
+}
+
+function CollapsibleContent({ content, className }: { content: string; className?: string }) {
+    const long = isLongContent(content)
+    const [expanded, setExpanded] = useState(!long)
+
+    if (!long) {
+        return <MarkdownContent content={content} className={className} />
+    }
+
+    return (
+        <div>
+            <div
+                className="relative overflow-hidden transition-[max-height] duration-200 ease-in-out"
+                style={{ maxHeight: expanded ? "none" : `${COLLAPSED_MAX_HEIGHT}px` }}
+            >
+                <MarkdownContent content={content} className={className} />
+                {!expanded && (
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-muted/80 to-transparent" />
+                )}
+            </div>
+            <button
+                type="button"
+                onClick={() => setExpanded((v) => !v)}
+                className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-primary hover:underline"
+            >
+                {expanded ? (
+                    <>
+                        <ChevronUp className="size-3" aria-hidden="true" />
+                        Show less
+                    </>
+                ) : (
+                    <>
+                        <ChevronDown className="size-3" aria-hidden="true" />
+                        Show more
+                    </>
+                )}
+            </button>
+        </div>
+    )
+}
+
 export default function InboxManagementPage({
     messages,
     initialQuery,
@@ -63,6 +182,7 @@ export default function InboxManagementPage({
     // Reply dialog state
     const [replyTarget, setReplyTarget] = useState<MessageRow | null>(null)
     const [replyText, setReplyText] = useState("")
+    const [replyTab, setReplyTab] = useState<"write" | "preview">("write")
     const [isSendingReply, setIsSendingReply] = useState(false)
     const [refreshing, setRefreshing] = useState(false)
 
@@ -135,6 +255,7 @@ export default function InboxManagementPage({
     function openReply(message: MessageRow) {
         setReplyTarget(message)
         setReplyText("")
+        setReplyTab("write")
     }
 
     function handleSendReply() {
@@ -168,7 +289,7 @@ export default function InboxManagementPage({
         })
     }
 
-    async function handleRefresh() {    
+    async function handleRefresh() {
         setRefreshing(true);
         await refreshInbox();
         setRefreshing(false);
@@ -313,7 +434,7 @@ export default function InboxManagementPage({
 
             {/* View message dialog */}
             <Dialog open={Boolean(readTarget)} onOpenChange={(open) => { if (!open) setReadTarget(null) }}>
-                <DialogContent className="sm:max-w-lg">
+                <DialogContent className="sm:max-w-2xl max-h-[85vh] flex flex-col">
                     <DialogHeader>
                         <DialogTitle className="font-heading">{readTarget?.subject}</DialogTitle>
                         <DialogDescription asChild>
@@ -330,9 +451,9 @@ export default function InboxManagementPage({
                         </DialogDescription>
                     </DialogHeader>
 
-                    <div className="max-h-80 overflow-y-auto space-y-3">
-                        <div className="rounded-md border border-border bg-muted/40 p-4 text-sm leading-relaxed whitespace-pre-wrap">
-                            {readTarget?.message}
+                    <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                        <div className="rounded-md border border-border bg-muted/40 p-4">
+                            <CollapsibleContent content={readTarget?.message ?? ""} />
                         </div>
 
                         {readTarget?.is_replied && readTarget?.reply_message && (
@@ -346,9 +467,7 @@ export default function InboxManagementPage({
                                         </span>
                                     )}
                                 </div>
-                                <div className="text-sm leading-relaxed whitespace-pre-wrap">
-                                    {readTarget.reply_message}
-                                </div>
+                                <CollapsibleContent content={readTarget.reply_message} />
                             </div>
                         )}
                     </div>
@@ -391,7 +510,7 @@ export default function InboxManagementPage({
 
             {/* Reply compose dialog */}
             <Dialog open={Boolean(replyTarget)} onOpenChange={(open) => { if (!open) setReplyTarget(null) }}>
-                <DialogContent className="sm:max-w-lg">
+                <DialogContent className="sm:max-w-3xl max-h-[90vh] flex flex-col">
                     <DialogHeader>
                         <DialogTitle className="font-heading">
                             Reply to {replyTarget?.name}
@@ -402,18 +521,56 @@ export default function InboxManagementPage({
                     </DialogHeader>
 
                     {/* Original message, kept visible for context while replying */}
-                    <div className="max-h-40 overflow-y-auto rounded-md border border-border bg-muted/40 p-3 text-sm leading-relaxed whitespace-pre-wrap text-muted-foreground">
-                        {replyTarget?.message}
+                    <div className="max-h-40 overflow-y-auto rounded-md border border-border bg-muted/40 p-3 text-muted-foreground">
+                        <CollapsibleContent content={replyTarget?.message ?? ""} />
                     </div>
 
-                    <Textarea
-                        value={replyText}
-                        onChange={(e) => setReplyText(e.target.value)}
-                        placeholder="Write your reply..."
-                        rows={6}
-                        className="resize-none"
-                        autoFocus
-                    />
+                    <div className="flex flex-col gap-2 flex-1 min-h-0">
+                        <div className="flex items-center justify-between">
+                            <div className="inline-flex rounded-md border border-border p-0.5">
+                                <button
+                                    type="button"
+                                    onClick={() => setReplyTab("write")}
+                                    className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors ${replyTab === "write" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                                        }`}
+                                >
+                                    <Pencil className="size-3" aria-hidden="true" />
+                                    Write
+                                </button>
+                                <button
+                                    type="button"
+                                    onClick={() => setReplyTab("preview")}
+                                    className={`inline-flex items-center gap-1.5 rounded px-2.5 py-1 text-xs font-medium transition-colors ${replyTab === "preview" ? "bg-muted text-foreground" : "text-muted-foreground hover:text-foreground"
+                                        }`}
+                                >
+                                    <Eye className="size-3" aria-hidden="true" />
+                                    Preview
+                                </button>
+                            </div>
+                            <span className="text-[11px] text-muted-foreground">
+                                Markdown supported — **bold**, *italic*, `code`, [link](url), lists, # headers
+                            </span>
+                        </div>
+
+                        {replyTab === "write" ? (
+                            <Textarea
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                placeholder="Write your reply... (Markdown supported)"
+                                rows={12}
+                                className="resize-none flex-1 min-h-[16rem] font-mono text-sm"
+                                autoFocus
+                            />
+                        ) : (
+                            <div className="flex-1 min-h-[16rem] overflow-y-auto rounded-md border border-border p-4">
+                                {replyText.trim() ? (
+                                    <MarkdownContent content={replyText} />
+                                ) : (
+                                    <p className="text-sm text-muted-foreground italic">Nothing to preview yet.</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
 
                     <DialogFooter className="gap-2">
                         <Button variant="ghost" onClick={() => setReplyTarget(null)}>
