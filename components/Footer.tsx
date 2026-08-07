@@ -16,7 +16,6 @@ const products = [
     { label: "InnrollPH", href: "#" },
     { label: "HIRAME", href: "#" },
     { label: "ResQLink", href: "#" },
-    { label: "urHOA", href: "#" },
     { label: "See More...", href: "/products" },
 ];
 
