@@ -86,7 +86,7 @@ export const metadata: Metadata = {
     type: "website",
     images: [
       {
-        url: "/opengraph-image",
+        url: "/banner.png",
         width: 1200,
         height: 630,
         alt: "URange Solutions",
@@ -99,7 +99,7 @@ export const metadata: Metadata = {
     title: "URange Solutions",
     description:
       "Turning Visible Problems Into Systems.",
-    images: ["/opengraph-image"],
+    images: ["/banner.png"],
   },
 };
 
