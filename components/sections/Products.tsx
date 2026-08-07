@@ -58,37 +58,40 @@ export function Products() {
             </Text>
           </div>
 
-          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px dark:bg-neutral-700 bg-neutral-300">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-neutral-300 dark:bg-neutral-700">
             {products.map((p) => (
               <div
                 key={p.name}
-                className="dark:bg-neutral-900 bg-neutral-100 p-6 flex flex-col gap-4 transition-colors group"
+                className="bg-neutral-100 dark:bg-neutral-900 hover:bg-brand dark:hover:bg-brand p-6 flex flex-col gap-4 transition-colors group"
               >
                 <span
-                  className={`self-start text-xs font-head px-2 py-0.5 tracking-widest ${p.badge === "Live"
-                    ? "bg-brand dark:text-white"
+                  className={`self-start text-xs font-head px-2 py-0.5 tracking-widest transition-colors ${p.badge === "Live"
+                    ? "bg-brand text-white"
                     : p.badge === "Beta"
-                      ? "border border-brand text-brand"
-                      : "border border-neutral-600 text-neutral-500"
+                      ? "border border-brand text-brand group-hover:border-white group-hover:text-white"
+                      : "border border-neutral-600 text-neutral-500 group-hover:border-white group-hover:text-white"
                     }`}
                 >
                   {p.badge}
                 </span>
 
                 <div>
-                  <p className="dark:text-neutral-500 text-xs tracking-widest uppercase mb-1">
+                  <p className="text-xs tracking-widest uppercase mb-1 text-neutral-500 group-hover:text-white/70 transition-colors">
                     {p.tag}
                   </p>
-                  <p className="font-head text-2xl dark:text-white group-hover:text-brand transition-colors">
+                  <p className="font-head text-2xl text-black dark:text-white group-hover:text-white transition-colors">
                     {p.name}
                   </p>
                 </div>
 
-                <p className="dark:text-neutral-400 text-neutral-700 text-sm leading-relaxed flex-1">
+                <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-white/90 text-sm leading-relaxed flex-1 transition-colors">
                   {p.desc}
                 </p>
 
-                <Link href={p.href} className="self-start flex flex-row gap-1 text-xs font-head text-brand tracking-widest border-b border-brand pb-0.5 hover:text-white hover:border-white transition-colors">
+                <Link
+                  href={p.href}
+                  className="self-start flex flex-row gap-1 text-xs font-head text-brand tracking-widest border-b border-brand pb-0.5 group-hover:text-white group-hover:border-white transition-colors"
+                >
                   LEARN MORE <ArrowRight className="h-4 w-4" />
                 </Link>
               </div>
