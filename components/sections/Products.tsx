@@ -22,9 +22,9 @@ const products = [
     href: "#",
   },
   {
-    id: "hirame",
+    id: "hiram",
     tag: "ITEM LENDING",
-    name: "HIRAME",
+    name: "HIRAM",
     desc: "Allows users to borrow items instead of buying something they'll only use once.",
     badge: "Coming soon",
     href: "#",
