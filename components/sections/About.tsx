@@ -16,7 +16,7 @@ const stats = [
 const team = [
   { avatar: teamJan, name: "Jan Liby Dela Costa", role: "Founder | Systems Lead | Full-Stack Developer" },
   { avatar: teamCobs, name: "Cobie Ignacio", role: "Co-Founder | Marketing Specealist | Full-Stack Developer" },
-  { avatar: teamMatt, name: "Matthieu Jamiel Carandang", role: "Co-Founder | System Analyst | Quality Assurance" }
+  { avatar: teamMatt, name: "Matthieu Jamiel Carandang", role: "Co-Founder | Quality Assurance | System Analyst " }
 ];
 
 export function About() {
