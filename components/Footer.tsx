@@ -14,7 +14,7 @@ const navLinks = [
 const products = [
     { label: "EZVote", href: "https://ezvote.vercel.app" },
     { label: "InnrollPH", href: "#" },
-    { label: "HIRAME", href: "#" },
+    { label: "HIRAM", href: "#" },
     { label: "ResQLink", href: "#" },
     { label: "See More...", href: "/products" },
 ];
