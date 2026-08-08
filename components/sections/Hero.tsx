@@ -5,11 +5,11 @@ import { Button } from "../retro/button";
 import { Text } from "../ui/Text";
 
 const partners = [
-    "Bulacan State University",
     "SM Foundation",
+    "EZVote",
     "Meralco Foundation",
     "DICT Region III",
-    "Note:All is dummy",
+    "Note: Partners is dummy",
 ];
 
 export function Hero() {
