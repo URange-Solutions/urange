@@ -14,9 +14,15 @@ const stats = [
 ];
 
 const team = [
+<<<<<<< HEAD
     { avatar: teamJan, name: "Jan Liby Dela Costa", role: "Founder | Systems Lead | Full-Stack Developer" },
     { avatar: teamCobs, name: "Cobie Ignacio", role: "Co-Founder | Marketing Specealist | Full-Stack Developer" },
     { avatar: teamMatt, name: "Matthieu Jamiel Carandang", role: "Co-Founder | System Analyst | Quality Assurance" }
+=======
+  { avatar: teamJan, name: "Jan Liby Dela Costa", role: "Founder | Systems Lead | Full-Stack Developer" },
+  { avatar: teamCobs, name: "Cobie Ignacio", role: "Co-Founder | Marketing Specealist | Full-Stack Developer" },
+  { avatar: teamMatt, name: "Matthieu Jamiel Carandang", role: "Co-Founder | Quality Assurance | System Analyst " }
+>>>>>>> 6b58888eeacd88674ae5ce8b1d8674405bcddcae
 ];
 
 export function About() {
