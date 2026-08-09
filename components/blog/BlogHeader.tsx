@@ -23,8 +23,8 @@ export function BlogHeader() {
 
       <nav
         className={`h-20 px-6 md:px-14 flex items-center justify-between transition-all duration-300 ${scrolled
-            ? "translate-y-0 opacity-100 bg-white dark:bg-black border-b-2"
-            : "-translate-y-full opacity-0 bg-transparent"
+          ? "translate-y-0 opacity-100 bg-white dark:bg-black border-b-2"
+          : "-translate-y-full opacity-0 bg-transparent"
           }`}
       >
         <Link href="/" className="flex items-center gap-2">

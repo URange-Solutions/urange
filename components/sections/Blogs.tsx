@@ -50,35 +50,35 @@ export function Blogs({ blogs }: BlogsProps) {
         </div>
 
         <div className="grid md:grid-cols-3 gap-px bg-neutral-700">
-            {blogs.map((post) => (
-              <Link
-                href={`/blogs/${post.slug}`}
-                key={post.title}
-                className="bg-neutral-900 p-6 flex flex-col gap-4 hover:bg-neutral-800 transition-colors group"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-head tracking-widest uppercase text-brand">
-                    {post.category}
-                  </span>
-                  <span className="text-xs text-neutral-500 tracking-wide">
-                    {formatDate(post.created_at)}
-                  </span>
-                </div>
-
-                <p className="font-head text-xl text-white leading-snug line-clamp-2 group-hover:text-brand transition-colors">
-                  {post.title}
-                </p>
-
-                <p className="text-neutral-400 text-sm leading-relaxed flex-1 line-clamp-3">
-                  {post.description}
-                </p>
-
-                <span className="self-start flex flex-row gap-1 text-xs font-head text-brand tracking-widest border-b border-brand pb-0.5 group-hover:text-white group-hover:border-white transition-colors">
-                  READ MORE <ArrowUpRight className="h-4 w-4" />
+          {blogs.map((post) => (
+            <Link
+              href={`/blogs/${post.slug}`}
+              key={post.title}
+              className="bg-neutral-900 p-6 flex flex-col gap-4 hover:bg-neutral-800 transition-colors group"
+            >
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-head tracking-widest uppercase text-brand">
+                  {post.category}
                 </span>
-              </Link>
-            ))}
-          </div>
+                <span className="text-xs text-neutral-500 tracking-wide">
+                  {formatDate(post.created_at)}
+                </span>
+              </div>
+
+              <p className="font-head text-xl text-white leading-snug line-clamp-2 group-hover:text-brand transition-colors">
+                {post.title}
+              </p>
+
+              <p className="text-neutral-400 text-sm leading-relaxed flex-1 line-clamp-3">
+                {post.description}
+              </p>
+
+              <span className="self-start flex flex-row gap-1 text-xs font-head text-brand tracking-widest border-b border-brand pb-0.5 group-hover:text-white group-hover:border-white transition-colors">
+                READ MORE <ArrowUpRight className="h-4 w-4" />
+              </span>
+            </Link>
+          ))}
+        </div>
       </Reveal>
     </section>
   );

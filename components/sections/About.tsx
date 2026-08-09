@@ -7,16 +7,16 @@ import teamCobs from '@/assets/team/cobie.jpg'
 import teamMatt from '@/assets/team/matt.jpg'
 
 const stats = [
-  { value: "12+", label: "Systems deployed" },
-  { value: "8K+", label: "Users served" },
-  { value: "94%", label: "Client retention" },
-  { value: "3wk", label: "Avg. delivery time" },
+    { value: "12+", label: "Systems deployed" },
+    { value: "8K+", label: "Users served" },
+    { value: "94%", label: "Client retention" },
+    { value: "3wk", label: "Avg. delivery time" },
 ];
 
 const team = [
-  { avatar: teamJan, name: "Jan Liby Dela Costa", role: "Founder | Systems Lead | Full-Stack Developer" },
-  { avatar: teamCobs, name: "Cobie Ignacio", role: "Co-Founder | Marketing Specealist | Full-Stack Developer" },
-  { avatar: teamMatt, name: "Matthieu Jamiel Carandang", role: "Co-Founder | System Analyst | Quality Assurance" }
+    { avatar: teamJan, name: "Jan Liby Dela Costa", role: "Founder | Systems Lead | Full-Stack Developer" },
+    { avatar: teamCobs, name: "Cobie Ignacio", role: "Co-Founder | Marketing Specealist | Full-Stack Developer" },
+    { avatar: teamMatt, name: "Matthieu Jamiel Carandang", role: "Co-Founder | System Analyst | Quality Assurance" }
 ];
 
 export function About() {

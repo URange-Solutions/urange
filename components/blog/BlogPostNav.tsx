@@ -23,11 +23,10 @@ export function BlogPostNav({ previousPost, nextPost }: BlogPostNavProps) {
             href={previousPost ? `/blogs/${previousPost.slug}` : "#"}
             aria-disabled={!previousPost}
             tabIndex={previousPost ? undefined : -1}
-            className={`bg-neutral-50 dark:bg-neutral-900 p-6 md:p-8 flex flex-col gap-3 transition-colors group ${
-              previousPost
-                ? "hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                : "pointer-events-none opacity-40"
-            }`}
+            className={`bg-neutral-50 dark:bg-neutral-900 p-6 md:p-8 flex flex-col gap-3 transition-colors group ${previousPost
+              ? "hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              : "pointer-events-none opacity-40"
+              }`}
           >
             <span className="flex items-center gap-2 text-xs font-head tracking-widest text-brand">
               <ArrowLeft className="h-4 w-4" />
@@ -42,11 +41,10 @@ export function BlogPostNav({ previousPost, nextPost }: BlogPostNavProps) {
             href={nextPost ? `/blogs/${nextPost.slug}` : "#"}
             aria-disabled={!nextPost}
             tabIndex={nextPost ? undefined : -1}
-            className={`bg-neutral-50 dark:bg-neutral-900 p-6 md:p-8 flex flex-col gap-3 items-start sm:items-end sm:text-right transition-colors group ${
-              nextPost
-                ? "hover:bg-neutral-100 dark:hover:bg-neutral-800"
-                : "pointer-events-none opacity-40"
-            }`}
+            className={`bg-neutral-50 dark:bg-neutral-900 p-6 md:p-8 flex flex-col gap-3 items-start sm:items-end sm:text-right transition-colors group ${nextPost
+              ? "hover:bg-neutral-100 dark:hover:bg-neutral-800"
+              : "pointer-events-none opacity-40"
+              }`}
           >
             <span className="flex items-center gap-2 text-xs font-head tracking-widest text-brand">
               NEXT

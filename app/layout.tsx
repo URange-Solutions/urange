@@ -3,7 +3,7 @@ import { Archivo_Black, Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/ui/theme-provider";
 import NextTopLoader from "nextjs-toploader";
 
 const geistMonoHeading = Geist_Mono({ subsets: ['latin'], variable: '--font-heading' });
@@ -18,7 +18,7 @@ const archivoBlack = Archivo_Black({
 const geist = Geist({ subsets: ['latin'], variable: '--font-sans' });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://urange.tech"),
+  metadataBase: new URL("https://www.urange.tech"),
 
   title: {
     default: "URange Solutions — Turning Visible Problems Into Systems",
