@@ -1,29 +1,100 @@
-import Image from "next/image";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 import { Reveal } from "../Reveal";
 import { Text } from "../ui/Text";
 
-import teamJan from '@/assets/team/janliby.jpg'
-import teamCobs from '@/assets/team/cobie.jpg'
-import teamMatt from '@/assets/team/matt.jpg'
+interface Stat {
+    value: string;
+    label: string;
+}
 
-const stats = [
+interface TimelineStep {
+    stage: string;
+    title: string;
+    desc: string;
+}
+
+const stats: Stat[] = [
     { value: "12+", label: "Systems deployed" },
     { value: "8K+", label: "Users served" },
     { value: "94%", label: "Client retention" },
     { value: "3wk", label: "Avg. delivery time" },
 ];
 
-const team = [
-<<<<<<< HEAD
-    { avatar: teamJan, name: "Jan Liby Dela Costa", role: "Founder | Systems Lead | Full-Stack Developer" },
-    { avatar: teamCobs, name: "Cobie Ignacio", role: "Co-Founder | Marketing Specealist | Full-Stack Developer" },
-    { avatar: teamMatt, name: "Matthieu Jamiel Carandang", role: "Co-Founder | System Analyst | Quality Assurance" }
-=======
-  { avatar: teamJan, name: "Jan Liby Dela Costa", role: "Founder | Systems Lead | Full-Stack Developer" },
-  { avatar: teamCobs, name: "Cobie Ignacio", role: "Co-Founder | Marketing Specealist | Full-Stack Developer" },
-  { avatar: teamMatt, name: "Matthieu Jamiel Carandang", role: "Co-Founder | Quality Assurance | System Analyst " }
->>>>>>> 6b58888eeacd88674ae5ce8b1d8674405bcddcae
+const timeline: TimelineStep[] = [
+    { stage: "Step 1", title: "Discover", desc: "We map the real bottleneck—where time, requests, or resources are getting lost." },
+    { stage: "Step 2", title: "Design", desc: "We plan the simplest system that solves the root problem, not just the symptom." },
+    { stage: "Step 3", title: "Build", desc: "Lean, focused development—working software in front of users in weeks, not months." },
+    { stage: "Step 4", title: "Support", desc: "We stay on to refine and maintain, so the system keeps holding up over time." },
 ];
+
+interface TimelineItemProps {
+    item: TimelineStep;
+    index: number;
+    isLast: boolean;
+}
+
+function TimelineItem({ item, index, isLast }: TimelineItemProps) {
+    const ref = useRef<HTMLDivElement>(null);
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        const node = ref.current;
+        if (!node) return;
+
+        const observer = new IntersectionObserver(
+            ([entry]) => {
+                if (entry.isIntersecting) {
+                    setVisible(true);
+                    observer.unobserve(node);
+                }
+            },
+            { threshold: 0.3, rootMargin: "0px 0px -10% 0px" }
+        );
+
+        observer.observe(node);
+        return () => observer.disconnect();
+    }, []);
+
+    return (
+        <div ref={ref} className="relative pl-14">
+            <div
+                className={`absolute left-0 top-0 w-8 h-8 rounded-full bg-brand text-white font-head text-sm flex items-center justify-center transition-all duration-500 ${
+                    visible ? "scale-100 opacity-100" : "scale-50 opacity-0"
+                }`}
+            >
+                {index + 1}
+            </div>
+
+            {!isLast && (
+                <div className="absolute left-[15px] top-8 bottom-[-1.5rem] w-0.5 bg-border overflow-hidden">
+                    <div
+                        className={`absolute inset-0 bg-brand origin-top transition-transform duration-700 ${
+                            visible ? "scale-y-100" : "scale-y-0"
+                        }`}
+                    />
+                </div>
+            )}
+
+            <div
+                className={`transition-all duration-700 ease-out ${
+                    visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
+                }`}
+            >
+                <div className="border-2 border-border p-4 hover:bg-brand hover:text-white transition-colors group">
+                    <p className="text-[10px] tracking-widest text-brand group-hover:text-white/80 uppercase mb-1">
+                        {item.stage}
+                    </p>
+                    <p className="font-head text-sm">{item.title}</p>
+                    <p className="text-xs text-neutral-500 dark:text-neutral-400 group-hover:text-white/80 transition-colors mt-1">
+                        {item.desc}
+                    </p>
+                </div>
+            </div>
+        </div>
+    );
+}
 
 export function About() {
     return (
@@ -36,7 +107,7 @@ export function About() {
                 <div className="grid md:grid-cols-2 gap-16 items-start">
                     <div>
                         <Text className="font-head text-4xl md:text-5xl leading-tight mb-6 text-black dark:text-white">
-                            BUILT BY PEOPLE WHO GOT <span className="text-brand">TIRED</span> OF BAD PROCESSES
+                            WE BUILD FOR PEOPLE WHO ARE <span className="text-brand">TIRED</span> OF BAD PROCESSES
                         </Text>
                         <Text className="text-neutral-600 dark:text-neutral-400 mb-4">
                             We started by mapping the gaps that slow schools, organizations, and
@@ -68,35 +139,17 @@ export function About() {
 
                     <div>
                         <p className="font-head text-xs tracking-widest text-neutral-400 dark:text-neutral-500 mb-6 uppercase">
-                            The people behind it
+                            How we work
                         </p>
-                        <div className="flex flex-col gap-4">
-                            {team.map((member, idx) => (
-                                <div
+                        <div className="flex flex-col gap-8">
+                            {timeline.map((t, idx) => (
+                                <TimelineItem
                                     key={idx}
-                                    className="flex items-center gap-4 border-2 border-border p-4 hover:bg-brand hover:text-white transition-colors group"
-                                >
-                                    <div className="w-12 h-12 bg-brand text-white font-head text-lg flex items-center justify-center shrink-0 group-hover:bg-white group-hover:text-brand transition-colors">
-                                        <Image src={member.avatar} alt={member.name} className="w-12 h-12" />
-                                    </div>
-                                    <div>
-                                        <p className="font-head text-sm">{member.name}</p>
-                                        <p className="text-xs text-neutral-500 dark:text-neutral-400 group-hover:text-white/80 transition-colors">
-                                            {member.role}
-                                        </p>
-                                    </div>
-                                </div>
+                                    item={t}
+                                    index={idx}
+                                    isLast={idx === timeline.length - 1}
+                                />
                             ))}
-                        </div>
-
-                        <div className="mt-8 border-l-4 border-brand pl-4">
-                            <Text className="text-neutral-600 dark:text-neutral-400 italic text-sm">
-                                "A system that works should be invisible. You shouldn't have
-                                to think about it—it should just handle things for you."
-                            </Text>
-                            <p className="text-xs text-neutral-400 dark:text-neutral-500 mt-2 font-head tracking-widest">
-                                — Jan Liby Dela Costa, Founder
-                            </p>
                         </div>
                     </div>
                 </div>

@@ -7,7 +7,7 @@ const navLinks = [
     { label: "About", href: "/#about" },
     { label: "Services", href: "/#services" },
     { label: "Products", href: "/#products" },
-    { label: "Blog", href: "/blog" },
+    { label: "Blog", href: "/#blog" },
     { label: "Contact", href: "/#contact" },
 ];
 
@@ -134,7 +134,7 @@ export function Footer() {
                     </p>
                     <div className="flex flex-col gap-3">
                         <a
-                            href="mailto:hello@yourdomain.com"
+                            href="mailto:contact@urange.tech"
                             className="text-neutral-400 text-sm hover:text-brand transition-colors break-all"
                         >
                             contact@urange.tech

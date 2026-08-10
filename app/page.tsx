@@ -10,13 +10,15 @@ import { Products } from "@/components/sections/Products";
 import { Blogs } from "@/components/sections/Blogs";
 import { CTA } from "@/components/sections/CTA";
 import { Contact } from "@/components/sections/Contact";
+import FloatingChat from "@/components/FloatingChat";
 
 export default async function Landing() {
+
   const latestBlogs = await db.query.blogs.findMany({
     where: eq(blogs.is_draft, false),
     orderBy: [desc(blogs.created_at)],
     limit: 3,
-  });
+  }).catch(_error => []);
 
   return (
     <main>
@@ -29,6 +31,7 @@ export default async function Landing() {
       <CTA />
       <Contact />
       <Footer />
+      <FloatingChat />
     </main>
   );
 }
