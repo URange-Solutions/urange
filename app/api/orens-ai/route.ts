@@ -269,7 +269,6 @@ const INTERACTIVE_BLOCK_RE = /```(?:buttons|choices|checkboxes|contact-form)\s*\
 const FENCE_START_RE = /```(buttons|choices|checkboxes|contact-form)\b/;
 const MERMAID_RE = /```mermaid[\s\S]*?```/i;
 
-// Phrases that count as the client approving a plan they've already seen.
 const APPROVAL_RE =
     /\b(looks good|looks fine|that('| i)s good|sounds good|proceed|approve[d]?|go ahead|^yes\b)/i;
 
@@ -283,36 +282,16 @@ function isValidEmail(email: string): boolean {
     return EMAIL_RE.test(email.trim());
 }
 
-/**
- * Validates a single fenced buttons/choices block against the two-stage plan-approval flow, and
- * also catches buttons blocks that should have been checkboxes (multi-select questions the model
- * mistakenly rendered as single-select).
- *
- * The system prompt *tells* the model when "Looks Good / Change something" and the
- * "Submit Plan to URange Team" confirm button are allowed to appear, but nothing enforced
- * it — the model would sometimes emit those buttons before a plan (flowchart) had actually
- * been presented, or emit the confirm button before the client had approved anything. It would
- * also sometimes render an obviously multi-select question ("which features...", "which
- * devices...") as buttons, trapping the client into picking only one.
- *
- * This is the server-side guard: it looks at the text of the CURRENT reply (for the
- * "Looks Good" stage, which must include a flowchart) and at the conversation history (for
- * the confirm stage, which requires an earlier flowchart AND an approval-sounding last
- * client message). If the block doesn't satisfy its stage's precondition, it's dropped
- * (returns "") instead of being shown to the client. It also flags likely multi-select
- * buttons blocks so the caller can trigger a checkboxes repair pass.
- */
 function validateInteractiveBlock(
     textBeforeBlock: string,
     blockRaw: string,
     conversation: ChatMessage[]
 ): { block: string; needsCheckboxRepair: boolean } {
     const parsed = /^```([a-zA-Z-]+)\s*\n([\s\S]*?)\s*```$/.exec(blockRaw.trim());
-    if (!parsed) return { block: blockRaw, needsCheckboxRepair: false }; // couldn't parse — leave untouched rather than risk breaking a valid block
+    if (!parsed) return { block: blockRaw, needsCheckboxRepair: false };
 
     const blockType = parsed[1];
     if (blockType !== "buttons" && blockType !== "choices") {
-        // checkboxes / contact-form aren't part of the premature-confirm bug
         return { block: blockRaw, needsCheckboxRepair: false };
     }
 
@@ -358,9 +337,6 @@ function validateInteractiveBlock(
         return { block: blockRaw, needsCheckboxRepair: false };
     }
 
-    // Not a confirm/looks-good block — check whether this is a plain buttons block that was
-    // probably supposed to be checkboxes: 3+ options and question text nearby suggesting
-    // multiple selections could apply (features, devices, sensors, integrations, etc).
     const questionText = textBeforeBlock.slice(-400).toLowerCase();
     const multiSelectSignal =
         /\b(which (features|devices|sensors|integrations|options|of these)|select all|choose any|any of the following|pick as many)\b/.test(
@@ -432,34 +408,6 @@ async function completeOnce(messages: ChatMessage[]): Promise<string | null> {
     }
 }
 
-async function repairMissingInteractiveBlock(
-    conversation: ChatMessage[],
-    replyText: string
-): Promise<string | null> {
-    const repairMessages: ChatMessage[] = [
-        ...conversation,
-        { role: "assistant", content: replyText },
-        {
-            role: "user",
-            content:
-                "You forgot the required interactive block on your last reply. Reply with ONLY ONE " +
-                "fenced block — no other text — and pick the correct type using this test: if the " +
-                "client could truthfully select more than one option at once (e.g. a 'which features " +
-                "do you want' style question), use a ```checkboxes\\n[...]\\n``` block; otherwise, for a " +
-                "single-answer question, use a ```buttons\\n[...]\\n``` block. Most scoping questions " +
-                "about features, devices, sensors, or integrations are multi-select — default to " +
-                'checkboxes for those. Only include the exact "Submit Plan to URange Team" confirm ' +
-                "button (in a buttons block) if the client had ALREADY said the plan looked good before " +
-                'your last reply; otherwise for a plan-review buttons block use plain options like ' +
-                '"Looks Good" / "Change something". Do not include both a buttons block and a ' +
-                "checkboxes block.",
-        },
-    ];
-
-    const text = await completeOnce(repairMessages);
-    return text && hasInteractiveBlock(text) ? text : null;
-}
-
 async function repairButtonsToCheckboxes(
     conversation: ChatMessage[],
     replyTextSoFar: string
@@ -482,6 +430,58 @@ async function repairButtonsToCheckboxes(
     if (!text) return null;
     const match = /```checkboxes\s*\n[\s\S]*?```/.exec(text);
     return match ? match[0] : null;
+}
+
+async function repairMissingInteractiveBlock(
+    conversation: ChatMessage[],
+    replyText: string,
+    droppedPrematureConfirmish: boolean = false
+): Promise<string | null> {
+    const instruction = droppedPrematureConfirmish
+        ? "Your last reply tried to show a 'Looks Good / Change something' or confirm button, but " +
+          "there is NOT yet a complete plan (with a flowchart) presented in this conversation, or the " +
+          "client hasn't actually said the plan looks good yet. Do NOT use those buttons. Instead, " +
+          "reply with ONLY ONE fenced block that continues the actual planning work at this point — " +
+          "either a ```checkboxes\\n[...]\\n``` block for a multi-select scoping question, a " +
+          "```buttons\\n[...]\\n``` block for a single-answer scoping question, or plain text with no " +
+          "block if the next step is an open-ended question. Never include 'Looks Good' or 'Submit " +
+          "Plan to URange Team' unless a full plan has genuinely already been shown and approved."
+        : "You forgot the required interactive block on your last reply. Reply with ONLY ONE " +
+          "fenced block — no other text — and pick the correct type using this test: if the " +
+          "client could truthfully select more than one option at once (e.g. a 'which features " +
+          "do you want' style question), use a ```checkboxes\\n[...]\\n``` block; otherwise, for a " +
+          "single-answer question, use a ```buttons\\n[...]\\n``` block. Most scoping questions " +
+          "about features, devices, sensors, or integrations are multi-select — default to " +
+          'checkboxes for those. Only include the exact "Submit Plan to URange Team" confirm ' +
+          "button (in a buttons block) if the client had ALREADY said the plan looked good before " +
+          'your last reply; otherwise for a plan-review buttons block use plain options like ' +
+          '"Looks Good" / "Change something". Do not include both a buttons block and a ' +
+          "checkboxes block.";
+
+    const repairMessages: ChatMessage[] = [
+        ...conversation,
+        { role: "assistant", content: replyText },
+        { role: "user", content: instruction },
+    ];
+
+    const text = await completeOnce(repairMessages);
+    if (!text || !hasInteractiveBlock(text)) return null;
+
+    const match = INTERACTIVE_BLOCK_RE.exec(text);
+    if (!match) return null;
+
+    const { block: validated, needsCheckboxRepair } = validateInteractiveBlock(
+        replyText,
+        match[0],
+        conversation
+    );
+
+    if (needsCheckboxRepair) {
+        const fixed = await repairButtonsToCheckboxes(conversation, replyText);
+        return fixed ?? null;
+    }
+
+    return validated || null;
 }
 
 function isFinalizeRequest(body: RequestBody, message: string): boolean {
@@ -541,29 +541,21 @@ function requestContactInfo(errorMessage?: string): NextResponse {
     });
 }
 
-/**
- * Streams the assistant's reply to the client, but holds back the trailing fenced
- * interactive block (buttons/choices/checkboxes/contact-form) until it's fully received so
- * it can be validated with validateInteractiveBlock() first. Everything before that block
- * streams through immediately as before — only the block itself is ever delayed, and only
- * by the time it takes to finish streaming that one small block (plus, occasionally, one
- * extra repair round-trip if a buttons block needs converting to checkboxes).
- */
 function streamChatReply(conversation: ChatMessage[]): NextResponse {
     const encoder = new TextEncoder();
 
     const stream = new ReadableStream<Uint8Array>({
         async start(controller) {
-            let replyText = ""; // everything received from upstream so far (raw)
-            let sentText = ""; // everything actually sent to the client so far (post-validation)
-            let flushedLength = 0; // how much of replyText has been resolved (sent or dropped)
-            let heldFenceStart = -1; // index into replyText where an unresolved fence begins, or -1
+            let replyText = "";
+            let sentText = "";
+            let flushedLength = 0;
+            let heldFenceStart = -1;
+            let droppedPrematureConfirmish = false;
 
             const flushUpTo = async (end: number, { validate }: { validate: boolean }) => {
                 if (end <= flushedLength) return;
                 const chunk = replyText.slice(flushedLength, end);
                 if (validate) {
-                    // chunk is a complete fenced interactive block starting at flushedLength
                     const textBeforeBlock = replyText.slice(0, flushedLength);
                     const { block: validated, needsCheckboxRepair } = validateInteractiveBlock(
                         textBeforeBlock,
@@ -580,6 +572,8 @@ function streamChatReply(conversation: ChatMessage[]): NextResponse {
                     if (finalBlock) {
                         sentText += finalBlock;
                         controller.enqueue(encoder.encode(finalBlock));
+                    } else if (validated === "" && !needsCheckboxRepair) {
+                        droppedPrematureConfirmish = true;
                     }
                 } else {
                     sentText += chunk;
@@ -594,15 +588,12 @@ function streamChatReply(conversation: ChatMessage[]): NextResponse {
                     replyText += delta;
 
                     if (heldFenceStart === -1) {
-                        // Look a few chars back in case the fence marker straddled a delta boundary.
                         const searchFrom = Math.max(flushedLength - 3, 0);
                         const fenceMatch = FENCE_START_RE.exec(replyText.slice(searchFrom));
                         if (fenceMatch) {
                             heldFenceStart = searchFrom + fenceMatch.index;
                             await flushUpTo(heldFenceStart, { validate: false });
                         } else {
-                            // Safe to release everything except a small tail margin, in case the
-                            // fence marker itself is still being written across the next delta.
                             await flushUpTo(Math.max(replyText.length - 12, flushedLength), { validate: false });
                         }
                     }
@@ -618,11 +609,14 @@ function streamChatReply(conversation: ChatMessage[]): NextResponse {
                     }
                 });
 
-                // Flush anything left over (trailing margin text, or a block that never closed).
                 await flushUpTo(replyText.length, { validate: false });
 
                 if (!hasInteractiveBlock(sentText)) {
-                    const repaired = await repairMissingInteractiveBlock(conversation, sentText);
+                    const repaired = await repairMissingInteractiveBlock(
+                        conversation,
+                        sentText,
+                        droppedPrematureConfirmish
+                    );
                     if (repaired) {
                         controller.enqueue(encoder.encode("\n\n" + repaired));
                     }
@@ -681,7 +675,7 @@ async function pumpSSEDeltas(
                     await onDelta(delta);
                 }
             } catch {
-              
+
             }
         }
     }

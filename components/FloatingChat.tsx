@@ -1,12 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState, FormEvent, useId } from "react";
+import { useEffect, useRef, useState, FormEvent, useId, useCallback } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import mermaid from "mermaid";
 import logo from "@/assets/logo-dark.png";
 import { Button } from "./ui/button";
+import { Input } from "./ui/input";
+import { Checkbox } from "./ui/checkbox";
 
 type Role = "user" | "assistant";
 
@@ -68,6 +70,19 @@ function CollapseIcon({ className = "w-4 h-4" }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </svg>
+  );
+}
+
+function DragHandleIcon({ className = "w-4 h-4" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" className={className}>
+      <circle cx="9" cy="6" r="1.4" fill="currentColor" />
+      <circle cx="15" cy="6" r="1.4" fill="currentColor" />
+      <circle cx="9" cy="12" r="1.4" fill="currentColor" />
+      <circle cx="15" cy="12" r="1.4" fill="currentColor" />
+      <circle cx="9" cy="18" r="1.4" fill="currentColor" />
+      <circle cx="15" cy="18" r="1.4" fill="currentColor" />
     </svg>
   );
 }
@@ -186,6 +201,8 @@ function MessageContent({
             return <MermaidDiagram chart={raw} onRendered={onMermaidRendered} />;
           }
 
+          // Interactive blocks (buttons/choices/checkboxes/contact-form/json) are parsed
+          // separately into the popup UI below the message — never rendered as raw code.
           if (
             isBlock &&
             (match?.[1] === "buttons" ||
@@ -339,6 +356,15 @@ const DEFAULT_WIDTH = 340;
 const DEFAULT_HEIGHT = 460;
 const MIN_WIDTH = 300;
 const MIN_HEIGHT = 360;
+const MOBILE_BREAKPOINT = 640;
+const VIEWPORT_MARGIN = 16;
+
+type Position = { left: number; top: number } | null;
+type ResizeDir = { top?: boolean; right?: boolean; bottom?: boolean; left?: boolean };
+
+function clamp(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), Math.max(max, min));
+}
 
 export function FloatingChat() {
   const name = "Orens AI";
@@ -347,7 +373,9 @@ export function FloatingChat() {
   const [open, setOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
   const [dimensions, setDimensions] = useState({ width: DEFAULT_WIDTH, height: DEFAULT_HEIGHT });
+  const [position, setPosition] = useState<Position>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([
     { role: "assistant", content: greeting },
   ]);
@@ -358,7 +386,17 @@ export function FloatingChat() {
   const [error, setError] = useState<string | null>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
-  const resizeStart = useRef<{ x: number; y: number; width: number; height: number } | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+  const resizeStart = useRef<{
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    left: number;
+    top: number;
+    dir: ResizeDir;
+  } | null>(null);
+  const dragStart = useRef<{ x: number; y: number; left: number; top: number } | null>(null);
   const userToggledFullscreen = useRef(false);
 
   useEffect(() => {
@@ -373,44 +411,150 @@ export function FloatingChat() {
     }
   }, [open]);
 
+  // Clamp default panel size to the viewport, and auto-fullscreen on small
+  // screens the first time the panel is opened so it doesn't overflow.
   useEffect(() => {
-    function handleMouseMove(e: MouseEvent) {
-      if (!isResizing || !resizeStart.current) return;
-      const dx = resizeStart.current.x - e.clientX;
-      const dy = resizeStart.current.y - e.clientY;
-      const maxWidth = window.innerWidth - 48;
-      const maxHeight = window.innerHeight - 48;
-      const nextWidth = Math.min(Math.max(resizeStart.current.width + dx, MIN_WIDTH), maxWidth);
-      const nextHeight = Math.min(Math.max(resizeStart.current.height + dy, MIN_HEIGHT), maxHeight);
-      setDimensions({ width: nextWidth, height: nextHeight });
+    if (!open || typeof window === "undefined") return;
+
+    const isMobile = window.innerWidth < MOBILE_BREAKPOINT;
+    if (isMobile && !userToggledFullscreen.current) {
+      setIsFullscreen(true);
     }
 
-    function handleMouseUp() {
+    setDimensions((prev) => ({
+      width: Math.min(prev.width, window.innerWidth - VIEWPORT_MARGIN * 2),
+      height: Math.min(prev.height, window.innerHeight - VIEWPORT_MARGIN * 2),
+    }));
+  }, [open]);
+
+  const clampPosition = useCallback((left: number, top: number, width: number, height: number) => {
+    const maxLeft = window.innerWidth - width - VIEWPORT_MARGIN;
+    const maxTop = window.innerHeight - height - VIEWPORT_MARGIN;
+    return {
+      left: Math.min(Math.max(left, VIEWPORT_MARGIN), Math.max(maxLeft, VIEWPORT_MARGIN)),
+      top: Math.min(Math.max(top, VIEWPORT_MARGIN), Math.max(maxTop, VIEWPORT_MARGIN)),
+    };
+  }, []);
+
+  // Re-clamp the dragged/resized position on viewport resize so the panel
+  // never gets stranded off-screen (e.g. rotating a phone).
+  useEffect(() => {
+    function handleWindowResize() {
+      setPosition((prev) => {
+        if (!prev) return prev;
+        return clampPosition(prev.left, prev.top, dimensions.width, dimensions.height);
+      });
+      setDimensions((prev) => ({
+        width: Math.min(prev.width, window.innerWidth - VIEWPORT_MARGIN * 2),
+        height: Math.min(prev.height, window.innerHeight - VIEWPORT_MARGIN * 2),
+      }));
+    }
+    window.addEventListener("resize", handleWindowResize);
+    return () => window.removeEventListener("resize", handleWindowResize);
+  }, [clampPosition, dimensions.width, dimensions.height]);
+
+  useEffect(() => {
+    function handlePointerMove(e: PointerEvent) {
+      if (isResizing && resizeStart.current) {
+        const { x, y, width, height, left, top, dir } = resizeStart.current;
+        const dx = e.clientX - x;
+        const dy = e.clientY - y;
+        const maxWidth = window.innerWidth - VIEWPORT_MARGIN * 2;
+        const maxHeight = window.innerHeight - VIEWPORT_MARGIN * 2;
+
+        let nextWidth = width;
+        let nextHeight = height;
+        let nextLeft = left;
+        let nextTop = top;
+
+        if (dir.right) {
+          nextWidth = clamp(width + dx, MIN_WIDTH, maxWidth);
+        } else if (dir.left) {
+          nextWidth = clamp(width - dx, MIN_WIDTH, maxWidth);
+          nextLeft = left + (width - nextWidth);
+        }
+
+        if (dir.bottom) {
+          nextHeight = clamp(height + dy, MIN_HEIGHT, maxHeight);
+        } else if (dir.top) {
+          nextHeight = clamp(height - dy, MIN_HEIGHT, maxHeight);
+          nextTop = top + (height - nextHeight);
+        }
+
+        setDimensions({ width: nextWidth, height: nextHeight });
+        setPosition(clampPosition(nextLeft, nextTop, nextWidth, nextHeight));
+        return;
+      }
+
+      if (isDragging && dragStart.current) {
+        const dx = e.clientX - dragStart.current.x;
+        const dy = e.clientY - dragStart.current.y;
+        const nextLeft = dragStart.current.left + dx;
+        const nextTop = dragStart.current.top + dy;
+        setPosition(clampPosition(nextLeft, nextTop, dimensions.width, dimensions.height));
+      }
+    }
+
+    function handlePointerUp() {
       setIsResizing(false);
+      setIsDragging(false);
       resizeStart.current = null;
+      dragStart.current = null;
     }
 
-    if (isResizing) {
-      window.addEventListener("mousemove", handleMouseMove);
-      window.addEventListener("mouseup", handleMouseUp);
+    if (isResizing || isDragging) {
+      window.addEventListener("pointermove", handlePointerMove);
+      window.addEventListener("pointerup", handlePointerUp);
+      window.addEventListener("pointercancel", handlePointerUp);
     }
 
     return () => {
-      window.removeEventListener("mousemove", handleMouseMove);
-      window.removeEventListener("mouseup", handleMouseUp);
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerup", handlePointerUp);
+      window.removeEventListener("pointercancel", handlePointerUp);
     };
-  }, [isResizing]);
+  }, [isResizing, isDragging, dimensions.width, dimensions.height, clampPosition]);
 
-  function handleResizeStart(e: React.MouseEvent) {
-    if (isFullscreen) return;
-    e.preventDefault();
-    resizeStart.current = {
-      x: e.clientX,
-      y: e.clientY,
-      width: dimensions.width,
-      height: dimensions.height,
+  function makeResizeHandler(dir: ResizeDir) {
+    return (e: React.PointerEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (!panelRef.current) return;
+
+      // Resizing (from any edge) while fullscreen drops out of fullscreen into
+      // a normal, positioned window sized to match what's currently on screen,
+      // so the drag continues from exactly where the user grabbed it.
+      const rect = panelRef.current.getBoundingClientRect();
+      if (isFullscreen) {
+        userToggledFullscreen.current = true;
+        setIsFullscreen(false);
+      }
+      setDimensions({ width: rect.width, height: rect.height });
+      setPosition({ left: rect.left, top: rect.top });
+
+      resizeStart.current = {
+        x: e.clientX,
+        y: e.clientY,
+        width: rect.width,
+        height: rect.height,
+        left: rect.left,
+        top: rect.top,
+        dir,
+      };
+      setIsResizing(true);
     };
-    setIsResizing(true);
+  }
+
+  function handleDragStart(e: React.PointerEvent) {
+    if (isFullscreen) return;
+    // Ignore drags started on interactive elements in the header.
+    if ((e.target as HTMLElement).closest("button")) return;
+    if (!panelRef.current) return;
+
+    const rect = panelRef.current.getBoundingClientRect();
+    dragStart.current = { x: e.clientX, y: e.clientY, left: rect.left, top: rect.top };
+    setPosition({ left: rect.left, top: rect.top });
+    setIsDragging(true);
   }
 
   function toggleFullscreen() {
@@ -507,32 +651,87 @@ export function FloatingChat() {
       ? parsePopupFromContent(lastMessage.content)
       : null;
 
-  const panelStyle = isFullscreen
-    ? undefined
-    : { width: dimensions.width, height: dimensions.height };
+  // Responsive sizing: on small screens the panel fills the viewport (minus a
+  // margin) instead of using the fixed desktop default so it never overflows.
+  // `100dvh`/`100dvw` (with a `100vh`/`100vw` fallback via calc's min()) track the
+  // real visible viewport on mobile browsers, so nothing gets clipped behind the
+  // address/tab bar the way plain `100vh` does.
+  const panelStyle: React.CSSProperties = isFullscreen
+    ? {}
+    : {
+        width: `min(${dimensions.width}px, calc(100vw - ${VIEWPORT_MARGIN * 2}px))`,
+        height: `min(${dimensions.height}px, calc(100dvh - ${VIEWPORT_MARGIN * 2}px))`,
+        ...(position
+          ? { left: position.left, top: position.top, right: "auto", bottom: "auto", transform: "none" }
+          : {}),
+      };
 
+  // Default (undragged, non-fullscreen) position is centered horizontally with
+  // a small bottom margin, like ChatGPT's floating panel, rather than pinned
+  // to a corner. Once the user drags it, explicit left/top from `position` takes over.
   const panelClassName = isFullscreen
-    ? "fixed inset-0 z-50 w-screen h-screen max-w-none max-h-none bg-white dark:bg-background border-0 shadow-none flex flex-col overflow-hidden"
-    : "relative max-w-[90vw] max-h-[85vh] bg-white dark:bg-background border-2 border-border shadow-xl flex flex-col overflow-hidden";
+    ? "fixed inset-0 z-50 bg-white dark:bg-background border-0 shadow-none flex flex-col overflow-hidden"
+    : `fixed z-50 flex flex-col overflow-hidden bg-white dark:bg-background border-2 border-border shadow-xl ${
+        position ? "" : "bottom-6 left-1/2 -translate-x-1/2"
+      }`;
+
+  const resizeHandleClass = "absolute z-10 touch-none";
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+    <>
       {open && (
-        <div className={panelClassName} style={panelStyle}>
-          {!isFullscreen && (
-            <div
-              onMouseDown={handleResizeStart}
-              className="absolute top-0 left-0 w-4 h-4 cursor-nwse-resize z-10"
-            >
-              <div className="absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 border-brand/70" />
-            </div>
-          )}
+        <div ref={panelRef} className={panelClassName} style={panelStyle}>
+          {/* Edge handles — grabbing any of these while fullscreen drops out of
+              fullscreen into a normal window sized to fill in from that edge. */}
+          <div
+            onPointerDown={makeResizeHandler({ top: true })}
+            className={`${resizeHandleClass} top-0 left-3 right-3 h-1.5 cursor-ns-resize`}
+          />
+          <div
+            onPointerDown={makeResizeHandler({ bottom: true })}
+            className={`${resizeHandleClass} bottom-0 left-3 right-3 h-1.5 cursor-ns-resize`}
+          />
+          <div
+            onPointerDown={makeResizeHandler({ left: true })}
+            className={`${resizeHandleClass} left-0 top-3 bottom-3 w-1.5 cursor-ew-resize`}
+          />
+          <div
+            onPointerDown={makeResizeHandler({ right: true })}
+            className={`${resizeHandleClass} right-0 top-3 bottom-3 w-1.5 cursor-ew-resize`}
+          />
+          {/* Corner handles */}
+          <div
+            onPointerDown={makeResizeHandler({ top: true, left: true })}
+            className={`${resizeHandleClass} top-0 left-0 w-3.5 h-3.5 cursor-nwse-resize`}
+          >
+            <div className="absolute top-1 left-1 w-2 h-2 border-t-2 border-l-2 border-brand/70" />
+          </div>
+          <div
+            onPointerDown={makeResizeHandler({ top: true, right: true })}
+            className={`${resizeHandleClass} top-0 right-0 w-3.5 h-3.5 cursor-nesw-resize`}
+          />
+          <div
+            onPointerDown={makeResizeHandler({ bottom: true, left: true })}
+            className={`${resizeHandleClass} bottom-0 left-0 w-3.5 h-3.5 cursor-nesw-resize`}
+          />
+          <div
+            onPointerDown={makeResizeHandler({ bottom: true, right: true })}
+            className={`${resizeHandleClass} bottom-0 right-0 w-3.5 h-3.5 cursor-nwse-resize`}
+          />
 
-          <div className="flex items-center justify-between gap-2 bg-card text-white px-4 py-3 shrink-0">
+          <div
+            onPointerDown={handleDragStart}
+            className={`flex items-center justify-between gap-2 bg-card text-white px-4 py-3 shrink-0 select-none ${
+              isFullscreen ? "" : `touch-none ${isDragging ? "cursor-grabbing" : "cursor-grab"}`
+            }`}
+          >
             <div className={`flex items-center gap-2 w-full ${isFullscreen ? "max-w-3xl mx-auto" : ""}`}>
-              <Image src={logo} alt={"Logo dark"} className="h-10 w-10" />
-              <div>
-                <p className="font-head text-sm leading-none">{name}</p>
+              {!isFullscreen && (
+                <DragHandleIcon className="w-3.5 h-3.5 text-white/50 shrink-0 hidden sm:block" />
+              )}
+              <Image src={logo} alt={"Logo dark"} className="h-9 w-9 sm:h-10 sm:w-10 shrink-0" />
+              <div className="min-w-0">
+                <p className="font-head text-sm leading-none truncate">{name}</p>
                 <p className="text-[10px] text-white/80 mt-0.5">
                   {loading ? "Typing..." : "AI System Planner"}
                 </p>
@@ -541,14 +740,14 @@ export function FloatingChat() {
                 <button
                   onClick={toggleFullscreen}
                   aria-label={isFullscreen ? "Exit fullscreen" : "Expand to fullscreen"}
-                  className="p-1 hover:bg-white/20 transition-colors rounded"
+                  className="p-1.5 hover:bg-white/20 transition-colors rounded"
                 >
                   {isFullscreen ? <CollapseIcon /> : <ExpandIcon />}
                 </button>
                 <button
                   onClick={() => setOpen(false)}
                   aria-label="Close chat"
-                  className="p-1 hover:bg-white/20 transition-colors rounded"
+                  className="p-1.5 hover:bg-white/20 transition-colors rounded"
                 >
                   <CloseIcon />
                 </button>
@@ -573,7 +772,7 @@ export function FloatingChat() {
                 return (
                   <div
                     key={idx}
-                    className={`max-w-[85%] px-3 py-2 text-sm leading-snug ${m.role === "user"
+                    className={`max-w-[88%] sm:max-w-[85%] px-3 py-2 text-sm leading-snug ${m.role === "user"
                         ? "self-end bg-brand text-white whitespace-pre-wrap"
                         : "self-start bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-100"
                       }`}
@@ -612,6 +811,7 @@ export function FloatingChat() {
                       <Button
                         key={i}
                         type="button"
+                        size="sm"
                         disabled={loading}
                         onClick={() => submitMessage(val)}
                       >
@@ -623,25 +823,19 @@ export function FloatingChat() {
               )}
 
               {activePopup.type === "checkbox" && activePopup.options && (
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex flex-wrap gap-2">
+                <div className="flex flex-col gap-2">
+                  <div className="flex flex-wrap gap-x-3 gap-y-2">
                     {activePopup.options.map((opt, i) => {
                       const val = opt.value?.trim() ? opt.value : opt.label;
                       const isChecked = selectedCheckboxes.includes(val);
                       return (
                         <label
                           key={i}
-                          className={`inline-flex items-center gap-1.5 px-2.5 py-1 text-xs cursor-pointer border rounded select-none transition-colors ${
-                            isChecked
-                              ? "bg-brand text-white border-brand"
-                              : "bg-white dark:bg-neutral-800 text-neutral-800 dark:text-neutral-200 border-neutral-300 dark:border-neutral-700"
-                          }`}
+                          className="inline-flex items-center gap-1.5 text-xs cursor-pointer select-none text-neutral-800 dark:text-neutral-200"
                         >
-                          <input
-                            type="checkbox"
-                            className="hidden"
+                          <Checkbox
                             checked={isChecked}
-                            onChange={() => handleCheckboxToggle(val)}
+                            onCheckedChange={() => handleCheckboxToggle(val)}
                           />
                           <span>{opt.label}</span>
                         </label>
@@ -650,9 +844,10 @@ export function FloatingChat() {
                   </div>
                   <Button
                     type="button"
+                    size="sm"
                     disabled={loading || selectedCheckboxes.length === 0}
                     onClick={() => submitMessage(selectedCheckboxes.join(", "))}
-                    className="self-start text-xs py-1 h-auto"
+                    className="self-start"
                   >
                     Confirm selection
                   </Button>
@@ -667,18 +862,18 @@ export function FloatingChat() {
                         <label className="text-xs font-semibold capitalize text-neutral-600 dark:text-neutral-400">
                           {field}
                         </label>
-                        <input
+                        <Input
                           type={field === "email" ? "email" : "text"}
                           required
                           value={formValues[field] || ""}
                           onChange={(e) => setFormValues(prev => ({ ...prev, [field]: e.target.value }))}
-                          className="text-xs px-2 py-1 bg-white dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 outline-none text-neutral-800 dark:text-neutral-100 rounded"
+                          className="text-xs h-8"
                           placeholder={`Enter your ${field}`}
                         />
                       </div>
                     ))}
                   </div>
-                  <Button type="submit" disabled={loading} className="w-full text-xs py-1 h-auto">
+                  <Button type="submit" size="sm" disabled={loading} className="w-full">
                     {activePopup.submitLabel}
                   </Button>
                 </form>
@@ -692,18 +887,18 @@ export function FloatingChat() {
               className={`flex items-center gap-2 border-t-2 border-border p-2 bg-white dark:bg-card shrink-0 ${isFullscreen ? "max-w-3xl w-full mx-auto" : ""
                 }`}
             >
-              <input
+              <Input
                 ref={inputRef}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 placeholder="Message Orens AI..."
-                className="flex-1 text-sm px-3 py-2 bg-neutral-100 dark:bg-neutral-800 outline-none text-neutral-800 dark:text-neutral-100"
+                className="flex-1 text-sm bg-neutral-100 dark:bg-neutral-800 border-0"
               />
               <button
                 type="submit"
                 disabled={(!input.trim() && selectedCheckboxes.length === 0) || loading}
                 aria-label="Send message"
-                className="bg-brand text-white p-2.5 hover:bg-brand transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+                className="bg-brand text-white p-2.5 hover:bg-brand transition-colors disabled:opacity-40 disabled:cursor-not-allowed shrink-0"
               >
                 <SendIcon />
               </button>
@@ -715,11 +910,11 @@ export function FloatingChat() {
       <button
         onClick={() => setOpen((o) => !o)}
         aria-label={open ? "Close chat" : "Open chat"}
-        className="w-14 h-14 rounded-full bg-brand hover:bg-brand flex items-center justify-center transition-transform hover:scale-105"
+        className="fixed bottom-6 right-4 sm:right-6 z-50 w-14 h-14 rounded-full bg-brand hover:bg-brand flex items-center justify-center transition-transform hover:scale-105"
       >
         {open ? <CloseIcon className="w-6 h-6 text-white" /> : <Image src={logo} alt={"Logo dark"} className="h-10 w-10" />}
       </button>
-    </div>
+    </>
   );
 }
 
