@@ -2,10 +2,8 @@
 
 import { useRef, useState, type ChangeEvent, type DragEvent, type FormEvent } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import {
-  Building2,
   Upload,
   FileText,
   X,
@@ -162,15 +160,15 @@ export default function URangePayCheckout() {
 
   if (submitted) {
     return (
-      <div className="min-h-screen w-full bg-muted/40 flex items-center justify-center py-6 px-4">
-        <Card className="w-full max-w-xl shadow-lg text-center p-6 md:p-10 flex flex-col items-center justify-center">
+      <div className="min-h-screen w-full bg-background sm:bg-muted/40 flex items-center justify-center py-4 px-4 sm:py-6">
+        <div className="w-full max-w-xl sm:border sm:bg-background sm:rounded-xl sm:shadow-lg text-center p-4 md:p-10 flex flex-col items-center justify-center">
           <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-4">
             <CheckCircle2 size={24} className="text-primary" />
           </div>
-          <CardTitle className="text-xl mb-2">Payment Submitted</CardTitle>
-          <CardDescription className="max-w-sm mb-6">
+          <h2 className="text-xl font-semibold tracking-tight mb-2">Payment Submitted</h2>
+          <p className="text-sm text-muted-foreground max-w-sm mb-6">
             {ORDER.merchant} will verify your {selectedChannel.label} payment and confirm your order shortly.
-          </CardDescription>
+          </p>
           
           <div className="w-full max-w-xs bg-muted/50 rounded-lg p-4 text-left border mb-4">
             <p className="text-[11px] uppercase tracking-widest text-muted-foreground mb-1">
@@ -185,21 +183,21 @@ export default function URangePayCheckout() {
           <p className="text-xs text-muted-foreground max-w-xs">
             Payment processing takes 1–3 business days because it is manually reviewed. We'll send an email regarding your purchase status.
           </p>
-        </Card>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full bg-muted/40 flex items-center justify-center py-6 px-4">
-      <Card className="w-full max-w-xl shadow-lg overflow-hidden pt-0">
-        <CardHeader className="bg-primary text-primary-foreground space-y-3 p-5 md:p-6">
+    <div className="min-h-screen w-full bg-background sm:bg-muted/40 flex items-center justify-center py-0 sm:py-6 sm:px-4">
+      <div className="w-full max-w-xl sm:border sm:bg-background sm:rounded-xl sm:shadow-lg overflow-hidden">
+        <header className="bg-primary text-primary-foreground space-y-3 p-5 md:p-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1 opacity-90">
               <Image src={logo} alt="Logo dark" className="h-8 w-8" />
               <span className="text-md font-head tracking-wide">URange Pay</span>
             </div>
-            <span className="text-xs bg-primary-foreground/10 px-2 py-0.5 rounded text-primary-foreground/90 font-mono">
+            <span className="text-[10px] bg-primary-foreground/10 px-2 py-0.5 rounded text-primary-foreground/90 font-mono">
               {ORDER.refNo}
             </span>
           </div>
@@ -210,28 +208,27 @@ export default function URangePayCheckout() {
                 <Store size={14} className="shrink-0 opacity-80" />
                 <span className="truncate">{ORDER.merchant}</span>
               </div>
-              <p className="text-xs text-primary-foreground/70 truncate max-w-[280px] md:max-w-md">
+              <p className="text-xs text-primary-foreground/70 truncate max-w-[180px] sm:max-w-md">
                 {ORDER.description}
               </p>
             </div>
             <div className="text-right shrink-0">
-              <p className="text-xs text-primary-foreground/60 uppercase tracking-wider font-medium">Amount</p>
-              <p className="font-bold text-xl md:text-2xl leading-tight">
+              <p className="text-[10px] text-primary-foreground/60 uppercase tracking-wider font-medium">Amount</p>
+              <p className="font-bold text-md md:text-2xl leading-tight">
                 {ORDER.currency}{formatAmount(ORDER.amount)}
               </p>
             </div>
           </div>
-        </CardHeader>
+        </header>
 
-        <CardContent className="p-5 md:p-6">
+        <div className="p-5 md:p-6">
           <form onSubmit={onSubmit} noValidate className="space-y-5">
             
-            {/* 1. Payment Method Selection */}
             <div className="space-y-2">
               <label className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold">
                 Select Payment Channel
               </label>
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid grid-cols-3 gap-2 mt-2">
                 {CHANNELS.map((c) => {
                   const Icon = c.icon;
                   const isSelected = channelId === c.id;
@@ -259,7 +256,6 @@ export default function URangePayCheckout() {
               </div>
             </div>
 
-            {/* 2. Dynamic Account Copy Fields */}
             <div className="rounded-xl border bg-muted/20 p-3.5 space-y-2">
               <p className="text-xs text-muted-foreground font-medium mb-1">
                 Transfer exactly <span className="font-semibold text-foreground">{ORDER.currency}{formatAmount(ORDER.amount)}</span> to:
@@ -272,7 +268,6 @@ export default function URangePayCheckout() {
 
             <Separator />
 
-            {/* 3. Proof of Payment Upload */}
             <div className="space-y-2">
               <label className="text-[11px] uppercase tracking-widest text-muted-foreground font-bold flex items-center gap-1.5">
                 <Upload size={12} />
@@ -361,8 +356,8 @@ export default function URangePayCheckout() {
               Payments are verified manually by the merchant
             </p>
           </form>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
     </div>
   );
 }
