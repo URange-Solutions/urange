@@ -10,7 +10,7 @@ import { Products } from "@/components/sections/Products";
 import { Blogs } from "@/components/sections/Blogs";
 import { CTA } from "@/components/sections/CTA";
 import { Contact } from "@/components/sections/Contact";
-import FloatingChat from "@/components/FloatingChat";
+// import FloatingChat from "@/components/FloatingChat";
 
 export default async function Landing() {
 
@@ -31,7 +31,7 @@ export default async function Landing() {
       <CTA />
       <Contact />
       <Footer />
-      <FloatingChat />
+      {/* <FloatingChat /> */}
     </main>
   );
 }
