@@ -35,7 +35,7 @@ async function notifyWebhook(
     let secret: string | null = null
     if (app.payments_webhook_secret_hash) {
         try {
-            secret = app.payments_webhook_secret_prefix + app.payments_webhook_secret_hash
+            secret = app.payments_webhook_secret_hash
         } catch (err) {
             console.error(`Failed to decrypt webhook secret for app ${app.id}:`, err)
         }
