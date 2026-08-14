@@ -28,6 +28,8 @@ export default async function CheckoutPageWrapper({
             app: {
                 columns: {
                     name: true,
+                    payments_success_url: true,
+                    payments_failure_url: true
                 },
             },
             paymentChannel: {
@@ -71,6 +73,8 @@ export default async function CheckoutPageWrapper({
                 currency: payment.currency,
                 refNo: payment.ref_no,
                 status: payment.status,
+                payments_success_url: payment.app?.payments_success_url ?? "/",
+                payments_failure_url: payment.app?.payments_failure_url ?? "/"
             }}
             channels={channels}
             defaultChannelId={payment.paymentChannel?.id ?? channels[0]?.id ?? null}

@@ -17,6 +17,7 @@ import {
 import Image from "next/image";
 import logo from '@/assets/logo-dark.png';
 import { submitPaymentProof } from "@/actions/payment-actions";
+import { useRouter } from "next/navigation";
 
 type PaymentStatus = "unpaid" | "pending" | "approved" | "declined";
 
@@ -27,6 +28,8 @@ interface OrderData {
     currency: string;
     refNo: string;
     status: PaymentStatus;
+    payments_success_url: string;
+    payments_failure_url: string;
 }
 
 interface PaymentChannelData {
@@ -189,6 +192,16 @@ export default function URangePayCheckout({ order, channels, defaultChannelId }:
         const isApproved = order.status === "approved";
         const isDeclined = order.status === "declined";
 
+        const router = useRouter();
+
+        const handleRedirect = () => {
+            if (isDeclined) {
+                return router.push(order.payments_failure_url);
+            } else {
+                return router.push(order.payments_success_url);
+            }
+        }
+
         return (
             <div className="min-h-screen w-full bg-background sm:bg-muted/40 flex items-center justify-center py-4 px-4 sm:py-6">
                 <div className="w-full max-w-xl sm:border sm:bg-background sm:rounded-xl sm:shadow-lg text-center p-4 md:p-10 flex flex-col items-center justify-center">
@@ -222,8 +235,8 @@ export default function URangePayCheckout({ order, channels, defaultChannelId }:
                         </p>
                     )}
 
-                    <Button type="button" size="lg" variant="outline" className="w-fit font-medium">
-                        Go back to {order.merchant}
+                    <Button type="button" size="lg" variant="outline" className="w-fit font-medium" onClick={handleRedirect}>
+                        Proceed to {order.merchant}
                     </Button>
                 </div>
             </div>
@@ -283,8 +296,8 @@ export default function URangePayCheckout({ order, channels, defaultChannelId }:
                                             }}
                                             disabled={busy}
                                             className={`flex items-center justify-center p-3 rounded-xl border text-center transition-all disabled:opacity-50 disabled:cursor-not-allowed ${isSelected
-                                                    ? "border-primary bg-primary/5 ring-2 ring-primary/20 font-medium text-primary"
-                                                    : "bg-background hover:bg-muted/50 border-input"
+                                                ? "border-primary bg-primary/5 ring-2 ring-primary/20 font-medium text-primary"
+                                                : "bg-background hover:bg-muted/50 border-input"
                                                 }`}
                                         >
                                             <p className="text-sm font-semibold leading-tight">{c.label}</p>
