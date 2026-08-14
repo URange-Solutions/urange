@@ -7,7 +7,7 @@ import { authenticateApp, authErrorResponse } from "@/lib/app-auth"
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { refNo: string } }
+    { params }: { params: Promise<{ refNo: string }> }
 ) {
 
     const { refNo } = await params;
