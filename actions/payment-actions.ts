@@ -4,15 +4,13 @@ import { revalidatePath } from "next/cache"
 import { eq, inArray } from "drizzle-orm"
 import { z } from "zod"
 import { db } from "@/database"
-import { payments, apps } from "@/database/schema"
+import { payments } from "@/database/schema"
 import { getAdminSession } from "@/lib/auth"
-import { PaymentWebhookEvent, sendPaymentWebhook } from "@/lib/utils/payment"
+import { notifyWebhook } from "@/lib/utils/payment"
 
 const PAYMENTS_PATH = "/dashboard/admin/payments"
 
 type ActionResult = { success: true; message?: string } | { success: false; error: string }
-
-type PaymentRow = typeof payments.$inferSelect
 
 async function getEligiblePendingIds(paymentIds: string[]) {
     const rows = await db
@@ -21,34 +19,6 @@ async function getEligiblePendingIds(paymentIds: string[]) {
         .where(inArray(payments.id, paymentIds))
 
     return rows.filter((r) => r.status === "pending").map((r) => r.id)
-}
-
-async function notifyWebhook(
-    payment: PaymentRow,
-    event: PaymentWebhookEvent
-): Promise<{ delivered: true } | { delivered: false; error: string }> {
-    if (!payment.app_id) return { delivered: true }
-
-    const [app] = await db.select().from(apps).where(eq(apps.id, payment.app_id)).limit(1)
-    if (!app) return { delivered: true }
-
-    let secret: string | null = null
-    if (app.payments_webhook_secret_hash) {
-        try {
-            secret = app.payments_webhook_secret_hash
-        } catch (err) {
-            console.error(`Failed to decrypt webhook secret for app ${app.id}:`, err)
-        }
-    }
-
-    const result = await sendPaymentWebhook(app, payment, event, secret)
-
-    if (!result.delivered) {
-        console.error(`Webhook delivery failed for payment ${payment.ref_no} (${event}):`, result.error)
-        return { delivered: false, error: result.error }
-    }
-
-    return { delivered: true }
 }
 
 const idSchema = z.string().uuid("Invalid payment id.")
@@ -94,7 +64,7 @@ export async function approvePayment(paymentId: string): Promise<ActionResult> {
                 throw new Error("Payment not found.")
             }
 
-            const webhookResult = await notifyWebhook(updated, "payment.success")
+            const webhookResult = await notifyWebhook(updated, "payment.confirmed")
             if (!webhookResult.delivered) {
                 throw new Error(`Approval was not saved because the webhook failed: ${webhookResult.error}`)
             }
@@ -154,7 +124,7 @@ export async function declinePayment(paymentId: string, reason: string): Promise
                 throw new Error("Payment not found.")
             }
 
-            const webhookResult = await notifyWebhook(updated, "payment.failed")
+            const webhookResult = await notifyWebhook(updated, "payment.declined")
             if (!webhookResult.delivered) {
                 throw new Error(`Decline was not saved because the webhook failed: ${webhookResult.error}`)
             }
@@ -193,9 +163,6 @@ export async function deletePayment(paymentId: string): Promise<ActionResult> {
     }
 }
 
-// Bulk ops now process each payment in its own transaction, so a webhook
-// failure only rolls back that one payment's status change instead of
-// aborting (or falsely committing) the whole batch.
 export async function bulkApprovePayments(paymentIds: string[]): Promise<ActionResult> {
     const parsed = idsSchema.safeParse(paymentIds)
     if (!parsed.success) {
@@ -231,7 +198,7 @@ export async function bulkApprovePayments(paymentIds: string[]): Promise<ActionR
 
                     if (!updated) throw new Error("Payment not found.")
 
-                    const webhookResult = await notifyWebhook(updated, "payment.success")
+                    const webhookResult = await notifyWebhook(updated, "payment.confirmed")
                     if (!webhookResult.delivered) {
                         throw new Error(webhookResult.error)
                     }
@@ -304,7 +271,7 @@ export async function bulkDeclinePayments(paymentIds: string[], reason: string):
 
                     if (!updated) throw new Error("Payment not found.")
 
-                    const webhookResult = await notifyWebhook(updated, "payment.failed")
+                    const webhookResult = await notifyWebhook(updated, "payment.declined")
                     if (!webhookResult.delivered) {
                         throw new Error(webhookResult.error)
                     }
@@ -353,39 +320,51 @@ export async function submitPaymentProof(
     input: SubmitPaymentProofInput
 ): Promise<SubmitPaymentProofResult> {
     const { refNo, paymentChannelId, proofFileUrl, proofFileType } = input;
-
+ 
     if (!refNo || !paymentChannelId || !proofFileUrl || !proofFileType) {
         return { success: false, error: "Missing required fields." };
     }
-
+ 
     try {
         const existing = await db.query.payments.findFirst({
             where: eq(payments.ref_no, refNo),
             columns: { id: true, status: true },
         });
-
+ 
         if (!existing) {
             return { success: false, error: "Payment not found." };
         }
-
+ 
         if (existing.status !== "unpaid") {
             return { success: false, error: "This payment has already been submitted." };
         }
-
-        await db
-            .update(payments)
-            .set({
-                payment_channel_id: paymentChannelId,
-                proof_file_url: proofFileUrl,
-                proof_file_type: proofFileType,
-                status: "pending",
-                updated_at: new Date().toISOString(),
-                paid_at: new Date().toISOString()
-            })
-            .where(eq(payments.ref_no, refNo));
-
+ 
+        await db.transaction(async (tx) => {
+            const [updated] = await tx
+                .update(payments)
+                .set({
+                    payment_channel_id: paymentChannelId,
+                    proof_file_url: proofFileUrl,
+                    proof_file_type: proofFileType,
+                    status: "pending",
+                    updated_at: new Date().toISOString(),
+                    paid_at: new Date().toISOString()
+                })
+                .where(eq(payments.ref_no, refNo))
+                .returning();
+ 
+            if (!updated) {
+                throw new Error("Payment not found.");
+            }
+ 
+            const webhookResult = await notifyWebhook(updated, "payment.paid");
+            if (!webhookResult.delivered) {
+                throw new Error(`Submission was not saved because the webhook failed: ${webhookResult.error}`);
+            }
+        });
+ 
         revalidatePath(`/payments/checkout/${refNo}`);
-
+ 
         return { success: true };
     } catch (error) {
         console.error("submitPaymentProof error:", error);

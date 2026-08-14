@@ -1,4 +1,8 @@
-export type PaymentWebhookEvent = "payment.success" | "payment.failed"
+import { eq } from "drizzle-orm"
+import { db } from "@/database"
+import { apps } from "@/database/schema"
+
+export type PaymentWebhookEvent = "payment.placed" | "payment.paid" | "payment.confirmed" | "payment.declined"
 
 export type PaymentWebhookPayload = {
     event: PaymentWebhookEvent
@@ -142,4 +146,38 @@ export async function sendPaymentWebhook(
     }
 
     return deliver({ url, secret: webhookSecret }, payload)
+}
+
+export type NotifyWebhookPayment = PaymentForWebhook & {
+    app_id: string | null
+}
+
+type NotifyWebhookResult = { delivered: true } | { delivered: false; error: string }
+
+export async function notifyWebhook(
+    payment: NotifyWebhookPayment,
+    event: PaymentWebhookEvent
+): Promise<NotifyWebhookResult> {
+    if (!payment.app_id) return { delivered: true }
+
+    const [app] = await db.select().from(apps).where(eq(apps.id, payment.app_id)).limit(1)
+    if (!app) return { delivered: true }
+
+    let secret: string | null = null
+    if (app.payments_webhook_secret_hash) {
+        try {
+            secret = app.payments_webhook_secret_hash
+        } catch (err) {
+            console.error(`Failed to decrypt webhook secret for app ${app.id}:`, err)
+        }
+    }
+
+    const result = await sendPaymentWebhook(app, payment, event, secret)
+
+    if (!result.delivered) {
+        console.error(`Webhook delivery failed for payment ${payment.ref_no} (${event}):`, result.error)
+        return { delivered: false, error: result.error }
+    }
+
+    return { delivered: true }
 }

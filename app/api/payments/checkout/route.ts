@@ -5,6 +5,7 @@ import { z } from "zod"
 import { db } from "@/database"
 import { payments } from "@/database/schema/payments.schema"
 import { authenticateApp, authErrorResponse } from "@/lib/app-auth"
+import { notifyWebhook } from "@/lib/utils/payment"
 
 const checkoutSchema = z.object({
     amount: z.number().positive(),
@@ -66,6 +67,15 @@ export async function POST(req: NextRequest) {
 
     const baseUrl = process.env.APP_PUBLIC_URL ?? new URL(req.url).origin
     const checkout_url = `${baseUrl}/payments/checkout/${payment.ref_no}`
+
+    const webhookResult = await notifyWebhook(payment, "payment.placed");
+
+    if (!webhookResult.delivered) {
+        return NextResponse.json(
+            { error: "Failed to make checkout process, weebhook configuration error" },
+            { status: 400 }
+        )
+    }
 
     return NextResponse.json(
         {
