@@ -7,23 +7,12 @@ import { db } from "@/database"
 import { payments, apps } from "@/database/schema"
 import { getAdminSession } from "@/lib/auth"
 import { PaymentWebhookEvent, sendPaymentWebhook } from "@/lib/utils/payment"
-import { decryptSecret } from "@/lib/reversible-secret"
 
 const PAYMENTS_PATH = "/dashboard/admin/payments"
 
 type ActionResult = { success: true; message?: string } | { success: false; error: string }
 
 type PaymentRow = typeof payments.$inferSelect
-
-async function getPaymentStatus(paymentId: string) {
-    const [existing] = await db
-        .select({ status: payments.status })
-        .from(payments)
-        .where(eq(payments.id, paymentId))
-        .limit(1)
-
-    return existing?.status ?? null
-}
 
 async function getEligiblePendingIds(paymentIds: string[]) {
     const rows = await db
@@ -46,7 +35,7 @@ async function notifyWebhook(
     let secret: string | null = null
     if (app.payments_webhook_secret_hash) {
         try {
-            secret = decryptSecret(app.payments_webhook_secret_hash)
+            secret = app.payments_webhook_secret_prefix + app.payments_webhook_secret_hash
         } catch (err) {
             console.error(`Failed to decrypt webhook secret for app ${app.id}:`, err)
         }

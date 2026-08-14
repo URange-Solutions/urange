@@ -8,7 +8,6 @@ import { db } from "@/database"
 import { apps } from "@/database/schema/apps.schema"
 import { hashSecret } from "@/lib/secret-hash"
 import { paymentChannels } from "@/database/schema"
-import { encryptSecret } from "@/lib/reversible-secret"
 
 const APPS_PATH = "/admin/apps"
 
@@ -65,7 +64,7 @@ export async function rotateWebhookSecret(appId: string) {
     await db
         .update(apps)
         .set({
-            payments_webhook_secret_hash: encryptSecret(plaintext),
+            payments_webhook_secret_hash: plaintext,
             payments_webhook_secret_prefix: prefix,
             payments_webhook_secret_last_rotated_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),

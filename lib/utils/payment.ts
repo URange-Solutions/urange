@@ -1,5 +1,3 @@
-import { createHmac, timingSafeEqual } from "node:crypto"
-
 export type PaymentWebhookEvent = "payment.success" | "payment.failed"
 
 export type PaymentWebhookPayload = {
@@ -15,6 +13,7 @@ export type PaymentWebhookPayload = {
     approved_at: string | null
     decline_reason: string | null
     timestamp: string
+    payload: any
 }
 
 type SendWebhookResult =
@@ -24,22 +23,6 @@ type SendWebhookResult =
 const MAX_ATTEMPTS = 3
 const TIMEOUT_MS = 8000
 const RETRY_BASE_DELAY_MS = 500
-
-export function signWebhookPayload(rawBody: string, timestamp: string, secret: string): string {
-    return createHmac("sha256", secret).update(`${timestamp}.${rawBody}`).digest("hex")
-}
-export function verifyWebhookSignature(
-    rawBody: string,
-    timestamp: string,
-    secret: string,
-    signature: string
-): boolean {
-    const expected = signWebhookPayload(rawBody, timestamp, secret)
-    const a = Buffer.from(expected, "hex")
-    const b = Buffer.from(signature, "hex")
-    if (a.length !== b.length) return false
-    return timingSafeEqual(a, b)
-}
 
 function sleep(ms: number) {
     return new Promise((resolve) => setTimeout(resolve, ms))
@@ -52,8 +35,8 @@ type WebhookTarget = {
 
 async function deliver(target: WebhookTarget, payload: PaymentWebhookPayload): Promise<SendWebhookResult> {
     const rawBody = JSON.stringify(payload)
-    const timestamp = Math.floor(Date.now() / 1000).toString()
-    const signature = signWebhookPayload(rawBody, timestamp, target.secret)
+
+    console.log(target, payload)
 
     let lastError = "Unknown error"
     let lastStatus: number | null = null
@@ -67,8 +50,7 @@ async function deliver(target: WebhookTarget, payload: PaymentWebhookPayload): P
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
-                    "x-webhook-signature": signature,
-                    "x-webhook-timestamp": timestamp,
+                    "x-webhook-secret": target.secret,
                     "x-webhook-event": payload.event,
                 },
                 body: rawBody,
@@ -113,6 +95,7 @@ type PaymentForWebhook = {
     customer_name: string | null
     approved_at: string | null
     decline_reason: string | null
+    payload: any
 }
 
 export async function sendPaymentWebhook(
@@ -122,9 +105,7 @@ export async function sendPaymentWebhook(
     webhookSecret: string | null
 ): Promise<SendWebhookResult> {
     const url =
-        event === "payment.success"
-            ? app.payments_success_url ?? app.payments_callback_url
-            : app.payments_failure_url ?? app.payments_callback_url
+        app.payments_callback_url;
 
     if (!url) {
         return {
@@ -157,6 +138,7 @@ export async function sendPaymentWebhook(
         approved_at: payment.approved_at,
         decline_reason: payment.decline_reason,
         timestamp: new Date().toISOString(),
+        payload: payment.payload,
     }
 
     return deliver({ url, secret: webhookSecret }, payload)
