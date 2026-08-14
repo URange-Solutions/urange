@@ -2,6 +2,15 @@
 
 import * as React from "react"
 
+import {
+    addPaymentChannel,
+    createApp,
+    removeApp,
+    removePaymentChannel,
+    rotateApiKey,
+    rotateWebhookSecret,
+    savePaymentConfig,
+} from "@/actions/apps-actions"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader } from "@/components/ui/card"
@@ -20,31 +29,38 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import {
+    AlertTriangle,
     Check,
     Copy,
     CreditCard,
-    Eye,
-    EyeOff,
     KeyRound,
     Lock,
+    Loader2,
     Plus,
+    QrCode,
     RefreshCw,
     SearchIcon,
     SettingsIcon,
     Ticket,
     Trash2,
+    Upload,
 } from "lucide-react"
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
+type PaymentChannel = {
+    id: string
+    name: string
+    accountName: string
+    accountNumber: string
+    qrImageUrl?: string
+}
 
 type PaymentConfig = {
-    gcashName: string
-    gcashNumber: string
+    channels: PaymentChannel[]
     callbackUrl: string
     successUrl: string
     failureUrl: string
+    webhookSecretPrefix?: string | null
+    webhookSecretLastRotatedAt?: string | null
 }
 
 type App = {
@@ -53,23 +69,20 @@ type App = {
     slug: string
     description: string
     color: string
-    apiKey?: string
+    apiKeyPrefix?: string | null
+    apiKeyLastRotatedAt?: string | null
     payment?: PaymentConfig
 }
 
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
 const AVATAR_COLORS = [
-    "#6366F1", // indigo
-    "#EC4899", // pink
-    "#10B981", // emerald
-    "#F59E0B", // amber
-    "#EF4444", // red
-    "#0EA5E9", // sky
-    "#8B5CF6", // violet
-    "#14B8A6", // teal
+    "#6366F1",
+    "#EC4899",
+    "#10B981",
+    "#F59E0B",
+    "#EF4444",
+    "#0EA5E9",
+    "#8B5CF6",
+    "#14B8A6",
 ]
 
 function slugify(value: string) {
@@ -80,20 +93,30 @@ function slugify(value: string) {
         .replace(/(^-|-$)/g, "")
 }
 
-function generateApiKey() {
-    const bytes = new Uint8Array(24)
-    crypto.getRandomValues(bytes)
-    const random = Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("")
-    return `sk_live_${random}`
+function formatDate(value?: string | null) {
+    if (!value) return null
+    try {
+        return new Date(value).toLocaleString()
+    } catch {
+        return value
+    }
 }
 
-function maskApiKey(key: string) {
-    return `${key.slice(0, 11)}${"•".repeat(20)}${key.slice(-4)}`
+function mapChannelRow(row: {
+    id: string
+    channel_name: string
+    account_name: string
+    account_number: string
+    qr_code_url: string | null
+}): PaymentChannel {
+    return {
+        id: row.id,
+        name: row.channel_name,
+        accountName: row.account_name,
+        accountNumber: row.account_number,
+        qrImageUrl: row.qr_code_url ?? undefined,
+    }
 }
-
-// ---------------------------------------------------------------------------
-// Shared bits
-// ---------------------------------------------------------------------------
 
 function AppAvatar({ name, color }: { name: string; color: string }) {
     return (
@@ -115,7 +138,6 @@ function CopyButton({ value }: { value: string }) {
             setCopied(true)
             window.setTimeout(() => setCopied(false), 1500)
         } catch {
-            // clipboard unavailable — silently ignore
         }
     }
 
@@ -126,9 +148,47 @@ function CopyButton({ value }: { value: string }) {
     )
 }
 
-// ---------------------------------------------------------------------------
-// Create App dialog
-// ---------------------------------------------------------------------------
+/**
+ * Shown exactly once, right after a key/secret is generated server-side.
+ * The plaintext value is never sent to the client again after this dialog
+ * closes — only the hash + prefix persist.
+ */
+function RevealSecretDialog({
+    open,
+    onOpenChange,
+    title,
+    value,
+}: {
+    open: boolean
+    onOpenChange: (open: boolean) => void
+    title: string
+    value: string | null
+}) {
+    return (
+        <Dialog open={open} onOpenChange={onOpenChange}>
+            <DialogContent className="sm:max-w-md">
+                <DialogHeader>
+                    <DialogTitle>{title}</DialogTitle>
+                    <DialogDescription>
+                        Copy this now. For your security, it won't be shown again — only a masked prefix is kept.
+                    </DialogDescription>
+                </DialogHeader>
+
+                <div className="flex items-center gap-2 rounded-lg border bg-muted/40 p-3">
+                    <AlertTriangle className="size-4 shrink-0 text-amber-500" />
+                    <code className="min-w-0 flex-1 truncate text-xs">{value}</code>
+                    {value && <CopyButton value={value} />}
+                </div>
+
+                <DialogFooter>
+                    <Button type="button" onClick={() => onOpenChange(false)}>
+                        I've copied it
+                    </Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
+    )
+}
 
 function CreateAppDialog({
     open,
@@ -137,16 +197,19 @@ function CreateAppDialog({
 }: {
     open: boolean
     onOpenChange: (open: boolean) => void
-    onCreate: (app: App) => void
+    onCreate: (input: { name: string; slug: string; description: string; color: string }) => Promise<void>
 }) {
     const [name, setName] = React.useState("")
     const [description, setDescription] = React.useState("")
     const [color, setColor] = React.useState(AVATAR_COLORS[0])
+    const [pending, setPending] = React.useState(false)
+    const [error, setError] = React.useState<string | null>(null)
 
     function resetForm() {
         setName("")
         setDescription("")
         setColor(AVATAR_COLORS[0])
+        setError(null)
     }
 
     function handleOpenChange(next: boolean) {
@@ -154,18 +217,25 @@ function CreateAppDialog({
         onOpenChange(next)
     }
 
-    function handleSubmit(e: React.FormEvent) {
+    async function handleSubmit(e: React.FormEvent) {
         e.preventDefault()
-        if (!name.trim()) return
+        if (!name.trim() || pending) return
 
-        onCreate({
-            id: crypto.randomUUID(),
-            name: name.trim(),
-            slug: slugify(name),
-            description: description.trim(),
-            color,
-        })
-        handleOpenChange(false)
+        setPending(true)
+        setError(null)
+        try {
+            await onCreate({
+                name: name.trim(),
+                slug: slugify(name),
+                description: description.trim(),
+                color,
+            })
+            handleOpenChange(false)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to create app.")
+        } finally {
+            setPending(false)
+        }
     }
 
     return (
@@ -226,13 +296,16 @@ function CreateAppDialog({
                                 ))}
                             </div>
                         </div>
+
+                        {error && <p className="text-sm text-destructive">{error}</p>}
                     </div>
 
                     <DialogFooter>
-                        <Button type="button" variant="outline" onClick={() => handleOpenChange(false)}>
+                        <Button type="button" variant="outline" onClick={() => handleOpenChange(false)} disabled={pending}>
                             Cancel
                         </Button>
-                        <Button type="submit" disabled={!name.trim()}>
+                        <Button type="submit" disabled={!name.trim() || pending}>
+                            {pending && <Loader2 data-icon="inline-start" className="animate-spin" />}
                             Create app
                         </Button>
                     </DialogFooter>
@@ -241,10 +314,6 @@ function CreateAppDialog({
         </Dialog>
     )
 }
-
-// ---------------------------------------------------------------------------
-// Configure App dialog
-// ---------------------------------------------------------------------------
 
 function ComingSoonTab({ icon: Icon, label }: { icon: typeof Ticket; label: string }) {
     return (
@@ -263,26 +332,28 @@ function GeneralTab({
     app: App
     onSave: (updates: Partial<App>) => void
 }) {
-    const [apiKey, setApiKey] = React.useState(app.apiKey)
-    const [revealKey, setRevealKey] = React.useState(false)
-    const [saved, setSaved] = React.useState(false)
+    const [pending, setPending] = React.useState(false)
+    const [error, setError] = React.useState<string | null>(null)
+    const [revealValue, setRevealValue] = React.useState<string | null>(null)
+    const [revealOpen, setRevealOpen] = React.useState(false)
 
-    React.useEffect(() => {
-        setApiKey(app.apiKey)
-        setRevealKey(false)
-        setSaved(false)
-    }, [app.id])
-
-    function handleGenerateKey() {
-        setApiKey(generateApiKey())
-        setRevealKey(true)
+    async function handleGenerateKey() {
+        if (pending) return
+        setPending(true)
+        setError(null)
+        try {
+            const { plaintext, prefix } = await rotateApiKey(app.id)
+            onSave({ apiKeyPrefix: prefix, apiKeyLastRotatedAt: new Date().toISOString() })
+            setRevealValue(plaintext)
+            setRevealOpen(true)
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to generate key.")
+        } finally {
+            setPending(false)
+        }
     }
 
-    function handleSave() {
-        onSave({ apiKey })
-        setSaved(true)
-        window.setTimeout(() => setSaved(false), 1500)
-    }
+    const lastRotated = formatDate(app.apiKeyLastRotatedAt)
 
     return (
         <div className="grid gap-6 py-2">
@@ -302,11 +373,11 @@ function GeneralTab({
 
             <div className="grid gap-2">
                 <Label htmlFor="cfg-api-key">API key</Label>
-                {apiKey ? (
+                {app.apiKeyPrefix ? (
                     <div className="flex gap-2">
                         <Input
                             id="cfg-api-key"
-                            value={revealKey ? apiKey : maskApiKey(apiKey)}
+                            value={`${app.apiKeyPrefix}${"•".repeat(20)}`}
                             readOnly
                             className="font-mono text-xs"
                         />
@@ -314,37 +385,168 @@ function GeneralTab({
                             type="button"
                             variant="outline"
                             size="icon"
-                            onClick={() => setRevealKey((v) => !v)}
-                            aria-label={revealKey ? "Hide key" : "Reveal key"}
-                        >
-                            {revealKey ? <EyeOff /> : <Eye />}
-                        </Button>
-                        <CopyButton value={apiKey} />
-                        <Button
-                            type="button"
-                            variant="outline"
-                            size="icon"
                             onClick={handleGenerateKey}
+                            disabled={pending}
                             aria-label="Regenerate key"
                         >
-                            <RefreshCw />
+                            {pending ? <Loader2 className="animate-spin" /> : <RefreshCw />}
                         </Button>
                     </div>
                 ) : (
-                    <Button type="button" variant="outline" onClick={handleGenerateKey} className="w-fit">
-                        <KeyRound data-icon="inline-start" />
+                    <Button type="button" variant="outline" onClick={handleGenerateKey} disabled={pending} className="w-fit">
+                        {pending ? <Loader2 data-icon="inline-start" className="animate-spin" /> : <KeyRound data-icon="inline-start" />}
                         Generate key
                     </Button>
                 )}
                 <p className="text-xs text-muted-foreground">
-                    Used to authenticate requests from this app. Regenerating invalidates the previous key.
+                    Used to authenticate requests from this app. Regenerating invalidates the previous key
+                    immediately.
+                    {lastRotated ? ` Last rotated ${lastRotated}.` : ""}
                 </p>
+                {error && <p className="text-sm text-destructive">{error}</p>}
             </div>
 
+            <RevealSecretDialog
+                open={revealOpen}
+                onOpenChange={setRevealOpen}
+                title="New API key"
+                value={revealValue}
+            />
+        </div>
+    )
+}
+
+function ChannelQrPreview({ url }: { url: string }) {
+    return (
+        <img
+            src={url}
+            alt="Channel QR code"
+            className="size-14 shrink-0 rounded-md border object-cover"
+        />
+    )
+}
+
+function AddChannelForm({
+    onAdd,
+}: {
+    onAdd: (channel: { name: string; accountName: string; accountNumber: string; qrImageUrl?: string }) => Promise<void>
+}) {
+    const [name, setName] = React.useState("")
+    const [accountName, setAccountName] = React.useState("")
+    const [accountNumber, setAccountNumber] = React.useState("")
+    const [qrImageUrl, setQrImageUrl] = React.useState<string | undefined>(undefined)
+    const [pending, setPending] = React.useState(false)
+    const [error, setError] = React.useState<string | null>(null)
+    const fileRef = React.useRef<HTMLInputElement>(null)
+
+    function handleQrChange(e: React.ChangeEvent<HTMLInputElement>) {
+        const file = e.target.files?.[0]
+        if (!file) return
+        const reader = new FileReader()
+        reader.onload = () => setQrImageUrl(reader.result as string)
+        reader.readAsDataURL(file)
+    }
+
+    function reset() {
+        setName("")
+        setAccountName("")
+        setAccountNumber("")
+        setQrImageUrl(undefined)
+        if (fileRef.current) fileRef.current.value = ""
+    }
+
+    async function handleAdd() {
+        if (!name.trim() || !accountName.trim() || !accountNumber.trim() || pending) return
+        setPending(true)
+        setError(null)
+        try {
+            await onAdd({
+                name: name.trim(),
+                accountName: accountName.trim(),
+                accountNumber: accountNumber.trim(),
+                qrImageUrl,
+            })
+            reset()
+        } catch (err) {
+            setError(err instanceof Error ? err.message : "Failed to add channel.")
+        } finally {
+            setPending(false)
+        }
+    }
+
+    const canAdd = name.trim() && accountName.trim() && accountNumber.trim() && !pending
+
+    return (
+        <div className="grid gap-3 rounded-lg border border-dashed p-3">
+            <div className="grid gap-3 sm:grid-cols-3">
+                <div className="grid gap-2">
+                    <Label htmlFor="new-channel-name">Channel name</Label>
+                    <Input
+                        id="new-channel-name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="GCash, Maya, BPI…"
+                    />
+                </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="new-channel-account-name">Account name</Label>
+                    <Input
+                        id="new-channel-account-name"
+                        value={accountName}
+                        onChange={(e) => setAccountName(e.target.value)}
+                        placeholder="Juan Dela Cruz"
+                    />
+                </div>
+                <div className="grid gap-2">
+                    <Label htmlFor="new-channel-account-number">Account number</Label>
+                    <Input
+                        id="new-channel-account-number"
+                        value={accountNumber}
+                        onChange={(e) => setAccountNumber(e.target.value)}
+                        placeholder="09XX XXX XXXX"
+                    />
+                </div>
+            </div>
+
+            <div className="flex items-center gap-3">
+                <input
+                    ref={fileRef}
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={handleQrChange}
+                />
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fileRef.current?.click()}
+                >
+                    <Upload data-icon="inline-start" />
+                    {qrImageUrl ? "Replace QR (optional)" : "Upload QR (optional)"}
+                </Button>
+                {qrImageUrl && <ChannelQrPreview url={qrImageUrl} />}
+                {qrImageUrl && (
+                    <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                            setQrImageUrl(undefined)
+                            if (fileRef.current) fileRef.current.value = ""
+                        }}
+                    >
+                        Remove QR
+                    </Button>
+                )}
+            </div>
+
+            {error && <p className="text-sm text-destructive">{error}</p>}
+
             <div className="flex justify-end">
-                <Button type="button" onClick={handleSave}>
-                    {saved ? <Check data-icon="inline-start" /> : null}
-                    {saved ? "Saved" : "Save changes"}
+                <Button type="button" size="sm" onClick={handleAdd} disabled={!canAdd}>
+                    {pending ? <Loader2 data-icon="inline-start" className="animate-spin" /> : <Plus data-icon="inline-start" />}
+                    Add channel
                 </Button>
             </div>
         </div>
@@ -358,68 +560,150 @@ function PaymentsTab({
     app: App
     onSave: (updates: Partial<App>) => void
 }) {
-    const [gcashName, setGcashName] = React.useState(app.payment?.gcashName ?? "")
-    const [gcashNumber, setGcashNumber] = React.useState(app.payment?.gcashNumber ?? "")
+    const [channels, setChannels] = React.useState<PaymentChannel[]>(app.payment?.channels ?? [])
     const [callbackUrl, setCallbackUrl] = React.useState(app.payment?.callbackUrl ?? "")
     const [successUrl, setSuccessUrl] = React.useState(app.payment?.successUrl ?? "")
     const [failureUrl, setFailureUrl] = React.useState(app.payment?.failureUrl ?? "")
-    const [saved, setSaved] = React.useState(false)
+    const [savingUrls, setSavingUrls] = React.useState(false)
+    const [savedUrls, setSavedUrls] = React.useState(false)
+    const [urlError, setUrlError] = React.useState<string | null>(null)
 
-    // Reset local form state whenever a different app is opened
+    const [secretPending, setSecretPending] = React.useState(false)
+    const [secretError, setSecretError] = React.useState<string | null>(null)
+    const [revealValue, setRevealValue] = React.useState<string | null>(null)
+    const [revealOpen, setRevealOpen] = React.useState(false)
+
     React.useEffect(() => {
-        setGcashName(app.payment?.gcashName ?? "")
-        setGcashNumber(app.payment?.gcashNumber ?? "")
+        setChannels(app.payment?.channels ?? [])
         setCallbackUrl(app.payment?.callbackUrl ?? "")
         setSuccessUrl(app.payment?.successUrl ?? "")
         setFailureUrl(app.payment?.failureUrl ?? "")
-        setSaved(false)
+        setSavedUrls(false)
+        setUrlError(null)
+        setSecretError(null)
     }, [app.id])
 
-    function handleSave() {
-        onSave({
-            payment: {
-                gcashName: gcashName.trim(),
-                gcashNumber: gcashNumber.trim(),
+    async function handleAddChannel(input: { name: string; accountName: string; accountNumber: string; qrImageUrl?: string }) {
+        const row = await addPaymentChannel(app.id, input)
+        const channel = mapChannelRow(row)
+        const next = [...channels, channel]
+        setChannels(next)
+        onSave({ payment: { ...(app.payment as PaymentConfig), channels: next } })
+    }
+
+    async function handleRemoveChannel(id: string) {
+        const prev = channels
+        const next = channels.filter((c) => c.id !== id)
+        setChannels(next) // optimistic
+        try {
+            await removePaymentChannel(app.id, id)
+            onSave({ payment: { ...(app.payment as PaymentConfig), channels: next } })
+        } catch (err) {
+            setChannels(prev) // revert on failure
+        }
+    }
+
+    async function handleSaveUrls() {
+        if (savingUrls) return
+        setSavingUrls(true)
+        setUrlError(null)
+        try {
+            await savePaymentConfig(app.id, {
                 callbackUrl: callbackUrl.trim(),
                 successUrl: successUrl.trim(),
                 failureUrl: failureUrl.trim(),
-            },
-        })
-        setSaved(true)
-        window.setTimeout(() => setSaved(false), 1500)
+            })
+            onSave({
+                payment: {
+                    ...(app.payment as PaymentConfig),
+                    callbackUrl: callbackUrl.trim(),
+                    successUrl: successUrl.trim(),
+                    failureUrl: failureUrl.trim(),
+                },
+            })
+            setSavedUrls(true)
+            window.setTimeout(() => setSavedUrls(false), 1500)
+        } catch (err) {
+            setUrlError(err instanceof Error ? err.message : "Failed to save integration settings.")
+        } finally {
+            setSavingUrls(false)
+        }
     }
+
+    async function handleGenerateSecret() {
+        if (secretPending) return
+        setSecretPending(true)
+        setSecretError(null)
+        try {
+            const { plaintext, prefix } = await rotateWebhookSecret(app.id)
+            onSave({
+                payment: {
+                    ...(app.payment as PaymentConfig),
+                    webhookSecretPrefix: prefix,
+                    webhookSecretLastRotatedAt: new Date().toISOString(),
+                },
+            })
+            setRevealValue(plaintext)
+            setRevealOpen(true)
+        } catch (err) {
+            setSecretError(err instanceof Error ? err.message : "Failed to generate secret.")
+        } finally {
+            setSecretPending(false)
+        }
+    }
+
+    const secretLastRotated = formatDate(app.payment?.webhookSecretLastRotatedAt)
 
     return (
         <div className="grid gap-6 py-2">
             <div className="grid gap-4">
                 <div>
-                    <p className="text-sm font-medium">GCash payout account</p>
+                    <p className="text-sm font-medium">Payout channels</p>
                     <p className="text-xs text-muted-foreground">
-                        Payments collected by this app are sent to this GCash account.
+                        Payments collected by this app are sent to these accounts. Add as many channels as you accept.
                     </p>
                 </div>
 
-                <div className="grid gap-4 sm:grid-cols-2">
+                {channels.length > 0 && (
                     <div className="grid gap-2">
-                        <Label htmlFor="cfg-gcash-name">Account name</Label>
-                        <Input
-                            id="cfg-gcash-name"
-                            value={gcashName}
-                            onChange={(e) => setGcashName(e.target.value)}
-                            placeholder="Juan Dela Cruz"
-                        />
+                        {channels.map((channel) => (
+                            <div
+                                key={channel.id}
+                                className="flex items-center gap-3 rounded-lg border p-3"
+                            >
+                                {channel.qrImageUrl ? (
+                                    <ChannelQrPreview url={channel.qrImageUrl} />
+                                ) : (
+                                    <div className="flex size-14 shrink-0 items-center justify-center rounded-md border bg-muted">
+                                        <QrCode className="size-5 text-muted-foreground" />
+                                    </div>
+                                )}
+                                <div className="min-w-0 flex-1">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm font-medium">{channel.name}</span>
+                                        <Badge variant="outline" className="text-muted-foreground">
+                                            {channel.accountNumber}
+                                        </Badge>
+                                    </div>
+                                    <p className="truncate text-xs text-muted-foreground">
+                                        {channel.accountName}
+                                    </p>
+                                </div>
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => handleRemoveChannel(channel.id)}
+                                    aria-label={`Remove ${channel.name}`}
+                                >
+                                    <Trash2 />
+                                </Button>
+                            </div>
+                        ))}
                     </div>
-                    <div className="grid gap-2">
-                        <Label htmlFor="cfg-gcash-number">GCash number</Label>
-                        <Input
-                            id="cfg-gcash-number"
-                            value={gcashNumber}
-                            onChange={(e) => setGcashNumber(e.target.value)}
-                            placeholder="09XX XXX XXXX"
-                            inputMode="numeric"
-                        />
-                    </div>
-                </div>
+                )}
+
+                <AddChannelForm onAdd={handleAddChannel} />
             </div>
 
             <Separator />
@@ -469,14 +753,68 @@ function PaymentsTab({
                         />
                     </div>
                 </div>
+
+                <div className="grid gap-2">
+                    <Label htmlFor="cfg-webhook-secret">Webhook secret</Label>
+                    {app.payment?.webhookSecretPrefix ? (
+                        <div className="flex gap-2">
+                            <Input
+                                id="cfg-webhook-secret"
+                                value={`${app.payment.webhookSecretPrefix}${"•".repeat(20)}`}
+                                readOnly
+                                className="font-mono text-xs"
+                            />
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="icon"
+                                onClick={handleGenerateSecret}
+                                disabled={secretPending}
+                                aria-label="Regenerate secret"
+                            >
+                                {secretPending ? <Loader2 className="animate-spin" /> : <RefreshCw />}
+                            </Button>
+                        </div>
+                    ) : (
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleGenerateSecret}
+                            disabled={secretPending}
+                            className="w-fit"
+                        >
+                            {secretPending ? <Loader2 data-icon="inline-start" className="animate-spin" /> : <KeyRound data-icon="inline-start" />}
+                            Generate secret
+                        </Button>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                        Used to sign webhook payloads sent to your callback URL. Verify this signature before
+                        trusting a webhook request. Regenerating invalidates the previous secret immediately.
+                        {secretLastRotated ? ` Last rotated ${secretLastRotated}.` : ""}
+                    </p>
+                    {secretError && <p className="text-sm text-destructive">{secretError}</p>}
+                </div>
             </div>
 
+            {urlError && <p className="text-sm text-destructive">{urlError}</p>}
+
             <div className="flex justify-end">
-                <Button type="button" onClick={handleSave}>
-                    {saved ? <Check data-icon="inline-start" /> : null}
-                    {saved ? "Saved" : "Save changes"}
+                <Button type="button" onClick={handleSaveUrls} disabled={savingUrls}>
+                    {savingUrls ? (
+                        <Loader2 data-icon="inline-start" className="animate-spin" />
+                    ) : savedUrls ? (
+                        <Check data-icon="inline-start" />
+                    ) : null}
+                    {savedUrls ? "Saved" : "Save changes"}
                 </Button>
             </div>
+
+            <RevealSecretDialog
+                open={revealOpen}
+                onOpenChange={setRevealOpen}
+                title="New webhook secret"
+                value={revealValue}
+            />
         </div>
     )
 }
@@ -548,26 +886,49 @@ function ConfigureAppDialog({
     )
 }
 
-// ---------------------------------------------------------------------------
-// Main grid
-// ---------------------------------------------------------------------------
-
 export function AppsGrid({ data: initialData }: { data: App[] }) {
     const [apps, setApps] = React.useState<App[]>(() => initialData)
     const [search, setSearch] = React.useState("")
     const [createOpen, setCreateOpen] = React.useState(false)
     const [configureApp, setConfigureApp] = React.useState<App | null>(null)
+    const [removingId, setRemovingId] = React.useState<string | null>(null)
 
     const filtered = apps.filter((app) =>
         `${app.name} ${app.description}`.toLowerCase().includes(search.toLowerCase())
     )
 
-    function handleCreate(app: App) {
-        setApps((prev) => [app, ...prev])
+    async function handleCreate(input: { name: string; slug: string; description: string; color: string }) {
+        const row = await createApp(input)
+        setApps((prev) => [
+            {
+                id: row.id,
+                name: row.name,
+                slug: row.slug,
+                description: row.description ?? "",
+                color: row.color,
+                apiKeyPrefix: row.api_key_prefix,
+                apiKeyLastRotatedAt: row.api_key_last_rotated_at,
+                payment: {
+                    channels: [],
+                    callbackUrl: "",
+                    successUrl: "",
+                    failureUrl: "",
+                    webhookSecretPrefix: null,
+                    webhookSecretLastRotatedAt: null,
+                },
+            },
+            ...prev,
+        ])
     }
 
-    function handleRemove(id: string) {
-        setApps((prev) => prev.filter((a) => a.id !== id))
+    async function handleRemove(id: string) {
+        setRemovingId(id)
+        try {
+            await removeApp(id)
+            setApps((prev) => prev.filter((a) => a.id !== id))
+        } finally {
+            setRemovingId(null)
+        }
     }
 
     function handleConfigureSave(appId: string, updates: Partial<App>) {
@@ -617,8 +978,16 @@ export function AppsGrid({ data: initialData }: { data: App[] }) {
                                 <SettingsIcon data-icon="inline-start" />
                                 Configure
                             </Button>
-                            <Button variant="destructive" onClick={() => handleRemove(app.id)}>
-                                <Trash2 data-icon="inline-start" />
+                            <Button
+                                variant="destructive"
+                                onClick={() => handleRemove(app.id)}
+                                disabled={removingId === app.id}
+                            >
+                                {removingId === app.id ? (
+                                    <Loader2 data-icon="inline-start" className="animate-spin" />
+                                ) : (
+                                    <Trash2 data-icon="inline-start" />
+                                )}
                                 Remove
                             </Button>
                         </CardContent>

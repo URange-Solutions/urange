@@ -4,20 +4,20 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar"
 import { getAdminSession } from "@/lib/auth";
 import { Metadata } from "next";
 import { ReactNode } from "react"
-
+import { Toaster } from "sonner"
 
 export const metadata: Metadata = {
-  title: "URange Solutions | Admin Panel",
-  description: "Manage URange Solutions informations.",
-  icons: {
-    icon: '/icon.png'
-  }
+    title: "URange Solutions | Admin Panel",
+    description: "Manage URange Solutions informations.",
+    icons: {
+        icon: '/icon.png'
+    }
 };
 
 export default async function AdminDashboardLayout({ children }: { children: ReactNode }) {
     const session = await getAdminSession();
 
-    if(!session?.admins) return null;
+    if (!session?.admins) return null;
 
     return (
         <SidebarProvider
@@ -33,6 +33,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
                 <SiteHeader />
                 <main>
                     {children}
+                    <Toaster />
                 </main>
             </SidebarInset>
         </SidebarProvider>
