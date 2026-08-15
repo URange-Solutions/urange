@@ -32,31 +32,31 @@ const services = [
 
 export function Services() {
     return (
-        <section id="services" className="py-24 bg-black border-t-4 border-black">
+        <section id="services" className="py-24 bg-card dark:bg-black">
             <Reveal className="mx-6 md:mx-24">
                 <span className="inline-block font-head text-xs tracking-widest text-brand border border-brand px-3 py-1 mb-6">
                     SERVICES
                 </span>
 
                 <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
-                    <Text className="font-head text-4xl md:text-5xl max-w-xl leading-tight text-white">
+                    <Text className="font-head text-4xl md:text-5xl max-w-xl leading-tight text-black dark:text-white">
                         WHAT WE <span className="bg-brand text-white px-2">BUILD</span> FOR YOU
                     </Text>
-                    <Text className="text-neutral-400 max-w-sm text-sm">
+                    <Text className="text-muted-foreground max-w-sm text-sm">
                         Pick a starting point, or tell us the process and we'll figure out
                         which of these it actually needs.
                     </Text>
                 </div>
 
-                <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-px bg-neutral-700">
+                <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-px bg-neutral-300 dark:bg-background">
                     {services.map((s) => (
                         <div
                             key={s.name}
-                            className="bg-neutral-900 p-6 flex flex-col gap-4 hover:bg-brand transition-colors group"
+                            className="bg-background dark:bg-neutral-900 hover:bg-brand dark:hover:bg-brand p-6 flex flex-col gap-4 transition-colors group"
                         >
                             <s.icon className="h-7 w-7 text-brand group-hover:text-white transition-colors" strokeWidth={1.5} />
-                            <p className="font-head text-lg leading-snug text-white">{s.name}</p>
-                            <p className="text-neutral-400 group-hover:text-white/90 text-sm leading-relaxed transition-colors">
+                            <p className="font-head text-lg leading-snug text-black dark:text-white group-hover:text-white">{s.name}</p>
+                            <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-white/90 dark:group-hover:text-white/90 text-sm leading-relaxed transition-colors">
                                 {s.desc}
                             </p>
                         </div>

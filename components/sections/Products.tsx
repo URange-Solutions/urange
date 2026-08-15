@@ -8,10 +8,18 @@ const products = [
   {
     id: "ezvote",
     tag: "ELECTION MANAGEMENT",
-    name: "EZVote",
-    desc: "Hold your organization's elections entirely online. Set up candidates, send voters a secure ballot link, and watch results tally live with a full audit trail.",
+    name: "EZVote EMS",
+    desc: "Manage your organization's elections entirely online in just a few clicks. Set up candidates, send voters a ballot link, and watch results tally live.",
     badge: "Beta",
     href: "https://ezvote.urange.tech",
+  },
+  {
+    id: "resqlink",
+    tag: "EMERGENCY RESPONSE",
+    name: "ResQLink",
+    desc: "Connect communities and responders to locate evacuation centers, manage emergency resources, and coordinate assistance. Request help and receive real-time emergency updates.",
+    badge: "Coming soon",
+    href: "#",
   },
   {
     id: "innrollph",
@@ -29,20 +37,12 @@ const products = [
     badge: "Coming soon",
     href: "#",
   },
-  {
-    id: "resqlink",
-    tag: "EMERGENCY RESPONSE",
-    name: "ResQLink",
-    desc: "Connect communities and responders to locate evacuation centers, manage emergency resources, and coordinate assistance. Request help and receive real-time emergency updates.",
-    badge: "Coming soon",
-    href: "#",
-  },
 ];
 export function Products() {
   return (
     <section
       id="products"
-      className="py-24 bg-background border-t-4 border-black"
+      className="py-24 bg-background"
     >
       <Reveal className="mx-6 md:mx-24">
         <span className="inline-block font-head text-xs tracking-widest text-brand border border-brand px-3 py-1 mb-6">
@@ -60,11 +60,11 @@ export function Products() {
           </Text>
         </div>
 
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-neutral-300 dark:bg-neutral-700">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-px bg-background">
           {products.map((p) => (
             <div
               key={p.id}
-              className="bg-neutral-100 dark:bg-neutral-900 hover:bg-brand dark:hover:bg-brand p-6 flex flex-col gap-4 transition-colors group"
+              className="bg-card dark:bg-neutral-900 hover:bg-brand dark:hover:bg-brand p-6 flex flex-col gap-4 transition-colors group"
             >
               <span
                 className={`self-start text-xs font-head px-2 py-0.5 tracking-widest transition-colors ${p.badge === "Live"
@@ -86,7 +86,7 @@ export function Products() {
                 </p>
               </div>
 
-              <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-white/90 text-sm leading-relaxed flex-1 transition-colors">
+              <p className="text-neutral-700 dark:text-neutral-400 group-hover:text-white/90 dark:group-hover:text-white/90 text-sm leading-relaxed flex-1 transition-colors">
                 {p.desc}
               </p>
 

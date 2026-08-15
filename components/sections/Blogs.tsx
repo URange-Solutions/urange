@@ -33,47 +33,47 @@ export function Blogs({ blogs }: BlogsProps) {
   if (blogs.length === 0) return null;
 
   return (
-    <section id="blog" className="py-24 bg-black border-t-4 border-black">
+    <section id="blog" className="py-24 bg-card dark:bg-black">
       <Reveal className="mx-6 md:mx-24">
         <span className="inline-block font-head text-xs tracking-widest text-brand border border-brand px-3 py-1 mb-6">
           FROM THE BLOG
         </span>
 
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-14">
-          <Text className="font-head text-4xl md:text-5xl text-white max-w-xl leading-tight">
+          <Text className="font-head text-4xl md:text-5xl text-black dark:text-white max-w-xl leading-tight">
             NOTES FROM <span className="bg-brand text-white px-2">THE BUILD</span>
           </Text>
-          <Text className="text-neutral-400 max-w-sm text-sm">
+          <Text className="text-muted-foreground max-w-sm text-sm">
             Write-ups on the problems we found, the decisions we made, and
             what we'd do differently.
           </Text>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-px bg-neutral-700">
+        <div className="grid md:grid-cols-3 gap-px bg-white dark:bg-neutral-700">
           {blogs.map((post) => (
             <Link
               href={`/blogs/${post.slug}`}
               key={post.title}
-              className="bg-neutral-900 p-6 flex flex-col gap-4 hover:bg-neutral-800 transition-colors group"
+              className="bg-white hover:bg-gray-100 dark:bg-neutral-900 dark:hover:bg-neutral-800 p-6 flex flex-col gap-4 transition-colors group"
             >
               <div className="flex items-center justify-between">
                 <span className="text-xs font-head tracking-widest uppercase text-brand">
                   {post.category}
                 </span>
-                <span className="text-xs text-neutral-500 tracking-wide">
+                <span className="text-xs text-muted-foreground tracking-wide">
                   {formatDate(post.created_at)}
                 </span>
               </div>
 
-              <p className="font-head text-xl text-white leading-snug line-clamp-2 group-hover:text-brand transition-colors">
+              <p className="font-head text-xl text-black dark:text-white leading-snug line-clamp-2 group-hover:text-brand dark:group-hover:text-brand transition-colors">
                 {post.title}
               </p>
 
-              <p className="text-neutral-400 text-sm leading-relaxed flex-1 line-clamp-3">
+              <p className="text-muted-foreground text-sm leading-relaxed flex-1 line-clamp-3">
                 {post.description}
               </p>
 
-              <span className="self-start flex flex-row gap-1 text-xs font-head text-brand tracking-widest border-b border-brand pb-0.5 group-hover:text-white group-hover:border-white transition-colors">
+              <span className="self-start flex flex-row gap-1 text-xs font-head text-brand tracking-widest border-b border-brand pb-0.5 group-hover:text-black group-hover:border-black dark:group-hover:text-white dark:group-hover:border-white transition-colors">
                 READ MORE <ArrowUpRight className="h-4 w-4" />
               </span>
             </Link>

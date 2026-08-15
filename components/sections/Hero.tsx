@@ -6,10 +6,10 @@ import { Text } from "../ui/Text";
 
 const partners = [
     "SM Foundation",
-    "EZVote",
+    "EZVote EMS",
     "Meralco Foundation",
     "DICT Region III",
-    "Note: Partners is dummy",
+    "Partners are Dummy",
 ];
 
 export function Hero() {

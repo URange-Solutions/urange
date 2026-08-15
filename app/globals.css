@@ -38,7 +38,7 @@
 
 :root {
   --radius: 0;
-  --card: oklch(1 0 0);
+  --card: oklch(97.767% 0.00211 14.29 / 0.965);
   --card-foreground: oklch(0.148 0.004 228.8);
   --brand: #ff2600;
   --primary: #ff2600;

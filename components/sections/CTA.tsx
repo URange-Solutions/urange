@@ -6,7 +6,7 @@ import { ArrowRight } from "lucide-react";
 
 export function CTA() {
     return (
-        <section className="relative bg-brand py-20 border-t-4 border-black overflow-hidden">
+        <section className="relative bg-brand py-20 overflow-hidden">
 
             {/* Decorative Outer Rings - Top Left */}
             <div className="absolute -top-24 -left-24 w-96 h-96 border-[55px] border-white/10 rounded-full pointer-events-none" />

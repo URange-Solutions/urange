@@ -100,7 +100,7 @@ export function Contact() {
     };
 
     return (
-        <section id="contact" className="py-24 bg-background border-t-4 border-black">
+        <section id="contact" className="py-24 bg-background">
             <Reveal className="mx-6 md:mx-24">
                 <span className="inline-block font-head text-xs tracking-widest text-brand border border-brand px-3 py-1 mb-6">
                     CONTACT

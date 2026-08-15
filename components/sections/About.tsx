@@ -23,10 +23,26 @@ const stats: Stat[] = [
 ];
 
 const timeline: TimelineStep[] = [
-    { stage: "Step 1", title: "Discover", desc: "We map the real bottleneck—where time, requests, or resources are getting lost." },
-    { stage: "Step 2", title: "Design", desc: "We plan the simplest system that solves the root problem, not just the symptom." },
-    { stage: "Step 3", title: "Build", desc: "Lean, focused development—working software in front of users in weeks, not months." },
-    { stage: "Step 4", title: "Support", desc: "We stay on to refine and maintain, so the system keeps holding up over time." },
+  { 
+    stage: "Step 1", 
+    title: "Find the problem", 
+    desc: "We figure out where time, requests, or work are getting stuck." 
+  },
+  { 
+    stage: "Step 2", 
+    title: "Plan it simple", 
+    desc: "We design the easiest fix for the real problem, not a band-aid solutions." 
+  },
+  { 
+    stage: "Step 3", 
+    title: "Build it fast", 
+    desc: "We build only what you need. You get working software in weeks, not months." 
+  },
+  { 
+    stage: "Step 4", 
+    title: "Keep it running", 
+    desc: "We stay to improve and maintain it, so it keeps working long-term." 
+  },
 ];
 
 interface TimelineItemProps {
@@ -111,7 +127,7 @@ export function About() {
                         </Text>
                         <Text className="text-neutral-600 dark:text-neutral-400 mb-4">
                             We started by mapping the gaps that slow schools, organizations, and
-                            communities down—manual processes that waste hours, systems that lose
+                            communities down, manual processes that waste hours, systems that lose
                             important requests, resources depleted before anyone notices, and issues
                             that get reported but never resolved.
                         </Text>
