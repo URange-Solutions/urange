@@ -39,7 +39,7 @@ export function LoginForm({
     formData.set("turnstileToken", turnstileToken);
     formAction(formData);
     
-    if (!isPending) {
+    if (state?.error) {
       turnstile.reset();
     }
   }

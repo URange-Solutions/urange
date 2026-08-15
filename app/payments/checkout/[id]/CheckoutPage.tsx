@@ -216,7 +216,7 @@ export default function URangePayCheckout({ order, channels, defaultChannelId }:
                             ? `Your payment to ${order.merchant} has been confirmed.`
                             : isDeclined
                                 ? `Your payment to ${order.merchant} could not be verified. Please contact support.`
-                                : `${order.merchant} will verify your ${selectedChannel?.label ?? "payment"} and confirm your order shortly.`}
+                                : `URange Team will verify your ${selectedChannel?.label ?? "payment"} and confirm your order shortly.`}
                     </p>
 
                     <div className="w-full max-w-xs bg-muted/50 rounded-lg p-4 text-left border mb-4">
