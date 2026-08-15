@@ -105,7 +105,7 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
               <li key={l.label} className="w-full text-center">
                 <li>
                   <Link href={l.href}
-                    onClick={() => setIsOpen(false)} className="bg-card/10 d font-head hover:text-brand p-3.5 hover:bg-card/20 flex flex-row justify-between items-center transition-all duration-300">
+                    onClick={() => setIsOpen(false)} className="bg-card/10 d font-head hover:text-brand p-3.5 hover:bg-card/20 focus:bg-card/20 flex flex-row justify-between items-center transition-all duration-300">
                     <span>{l.label}</span>
                     <ArrowRight className='h-5 w-5' />
                   </Link>
@@ -114,7 +114,7 @@ export function Navbar({ isLanding }: { isLanding?: boolean }) {
             ))}
           </ul>
           <div className='absolute bottom-8 w-full flex flex-col gap-4 justify-center px-6'>
-            <Link href={"/contact"} className='w-full'>
+            <Link href={"/#contact"} className='w-full'>
               <Button size='lg' className='w-full py-3'>{"Contact Us"}</Button>
             </Link>
           </div>
