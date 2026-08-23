@@ -82,14 +82,14 @@ const data = {
     },
   ],
   support: [
-    {
-      name: "Tickets",
-      url: "/admin/tickets",
-      icon: (
-        <Ticket
-        />
-      ),
-    },
+    // {
+    //   name: "Tickets",
+    //   url: "/admin/tickets",
+    //   icon: (
+    //     <Ticket
+    //     />
+    //   ),
+    // },
   ],
   manage: [
     {
