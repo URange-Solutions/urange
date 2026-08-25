@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from "react";
 import { Reveal } from "../Reveal";
 import { Text } from "../ui/Text";
+import { Button } from "../retro/button";
+import Link from "next/link";
 
 interface Stat {
     value: string;
@@ -23,26 +25,26 @@ const stats: Stat[] = [
 ];
 
 const timeline: TimelineStep[] = [
-  { 
-    stage: "Step 1", 
-    title: "Find the problem", 
-    desc: "We figure out where time, requests, or work are getting stuck." 
-  },
-  { 
-    stage: "Step 2", 
-    title: "Plan it simple", 
-    desc: "We design the easiest fix for the real problem, not a band-aid solutions." 
-  },
-  { 
-    stage: "Step 3", 
-    title: "Build it fast", 
-    desc: "We build only what you need. You get working software in weeks, not months." 
-  },
-  { 
-    stage: "Step 4", 
-    title: "Keep it running", 
-    desc: "We stay to improve and maintain it, so it keeps working long-term." 
-  },
+    {
+        stage: "Step 1",
+        title: "Find the problem",
+        desc: "We figure out where time, requests, or work are getting stuck."
+    },
+    {
+        stage: "Step 2",
+        title: "Plan it simple",
+        desc: "We design the easiest fix for the real problem, not a band-aid solutions."
+    },
+    {
+        stage: "Step 3",
+        title: "Build it fast",
+        desc: "We build only what you need. You get working software in weeks, not months."
+    },
+    {
+        stage: "Step 4",
+        title: "Keep it running",
+        desc: "We stay to improve and maintain it, so it keeps working long-term."
+    },
 ];
 
 interface TimelineItemProps {
@@ -76,9 +78,8 @@ function TimelineItem({ item, index, isLast }: TimelineItemProps) {
     return (
         <div ref={ref} className="relative pl-14">
             <div
-                className={`absolute left-0 top-0 w-8 h-8 rounded-full bg-brand text-white font-head text-sm flex items-center justify-center transition-all duration-500 ${
-                    visible ? "scale-100 opacity-100" : "scale-50 opacity-0"
-                }`}
+                className={`absolute left-0 top-0 w-8 h-8 rounded-full bg-brand text-white font-head text-sm flex items-center justify-center transition-all duration-500 ${visible ? "scale-100 opacity-100" : "scale-50 opacity-0"
+                    }`}
             >
                 {index + 1}
             </div>
@@ -86,17 +87,15 @@ function TimelineItem({ item, index, isLast }: TimelineItemProps) {
             {!isLast && (
                 <div className="absolute left-[15px] top-8 bottom-[-1.5rem] w-0.5 bg-border overflow-hidden">
                     <div
-                        className={`absolute inset-0 bg-brand origin-top transition-transform duration-700 ${
-                            visible ? "scale-y-100" : "scale-y-0"
-                        }`}
+                        className={`absolute inset-0 bg-brand origin-top transition-transform duration-700 ${visible ? "scale-y-100" : "scale-y-0"
+                            }`}
                     />
                 </div>
             )}
 
             <div
-                className={`transition-all duration-700 ease-out ${
-                    visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
-                }`}
+                className={`transition-all duration-700 ease-out ${visible ? "opacity-100 translate-x-0" : "opacity-0 translate-x-8"
+                    }`}
             >
                 <div className="border-2 border-border p-4 hover:bg-brand hover:text-white transition-colors group">
                     <p className="text-[10px] tracking-widest text-brand group-hover:text-white/80 uppercase mb-1">
@@ -137,6 +136,10 @@ export function About() {
                             the root problem first, then build the simplest solution that actually
                             holds up over time.
                         </Text>
+
+                        <Link href='/about'>
+                            <Button size='lg'>Who We Are</Button>
+                        </Link>
 
                         {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             {stats.map((s, idx) => (
