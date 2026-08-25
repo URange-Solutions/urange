@@ -100,11 +100,11 @@ export function Products() {
           ))}
         </div>
 
-        <div className="mt-10 flex justify-center">
+        {/* <div className="mt-10 flex justify-center">
           <Button className="px-8 py-3" variant={"outline"}>
             View All Products
           </Button>
-        </div>
+        </div> */}
       </Reveal>
     </section>
   )

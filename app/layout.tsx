@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.urange.tech"),
 
   title: {
-    default: "URange Solutions — Turning Visible Problems Into Systems",
-    template: "%s | URange Solutions",
+    default: "URange Solutions | Information Technology Solutions",
+    template: "%s | Information Technology Solutions",
   },
 
   description:
@@ -40,6 +40,7 @@ export const metadata: Metadata = {
     "election management",
     "Philippines",
     "URange Solutions",
+    "information technology"
   ],
 
   authors: [
@@ -77,7 +78,7 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "URange Solutions — Turning Visible Problems Into Systems",
+    title: "URange Solutions | Information Technology Solutions",
     description:
       "We create practical digital solutions that simplify real-world processes through modern software development.",
     url: "https://urange.tech",

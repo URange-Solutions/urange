@@ -155,18 +155,22 @@ export function Footer() {
 
             <div className="py-6 mx-6 md:mx-24 flex flex-col sm:flex-row justify-between items-center gap-3">
                 <p className="text-neutral-600 text-xs">
-                    © {year} URange Systems. All rights reserved.
+                    © {year} URange Solutions. All rights reserved.
                 </p>
                 <div className="flex gap-6">
-                    {["Privacy Policy", "Terms of Use"].map((item) => (
-                        <a
-                            key={item}
-                            href="#"
-                            className="text-neutral-600 text-xs hover:text-neutral-400 transition-colors"
-                        >
-                            {item}
-                        </a>
-                    ))}
+                    <a
+                        href="#
+                        /privacy-policy"
+                        className="text-neutral-600 text-xs hover:text-neutral-400 transition-colors"
+                    >
+                        Privacy Policy
+                    </a>
+                    <a
+                        href="/terms-of-service"
+                        className="text-neutral-600 text-xs hover:text-neutral-400 transition-colors"
+                    >
+                        Terms of Service
+                    </a>
                 </div>
             </div>
 

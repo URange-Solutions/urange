@@ -53,7 +53,7 @@ export function Hero() {
                             <div className="pointer-events-none absolute inset-y-0 left-0 w-16 md:w-32 dark:bg-linear-to-r from-background to-transparent z-10" />
                             <div className="pointer-events-none absolute inset-y-0 right-0 w-16 md:w-32 dark:bg-linear-to-l from-background to-transparent z-10" />
 
-                            <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
+                            {/* <div className="flex w-max animate-marquee hover:[animation-play-state:paused]">
                                 {[...partners, ...partners].map((name, idx) => (
                                     <div
                                         key={idx}
@@ -64,7 +64,7 @@ export function Hero() {
                                         </p>
                                     </div>
                                 ))}
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>

@@ -138,7 +138,7 @@ export function About() {
                             holds up over time.
                         </Text>
 
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        {/* <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                             {stats.map((s, idx) => (
                                 <div
                                     key={idx}
@@ -150,7 +150,7 @@ export function About() {
                                     </p>
                                 </div>
                             ))}
-                        </div>
+                        </div> */}
                     </div>
 
                     <div>

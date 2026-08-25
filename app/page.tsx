@@ -10,6 +10,7 @@ import { Products } from "@/components/sections/Products";
 import { Blogs } from "@/components/sections/Blogs";
 import { CTA } from "@/components/sections/CTA";
 import { Contact } from "@/components/sections/Contact";
+import { FAQ } from "@/components/sections/FAQ";
 // import FloatingChat from "@/components/FloatingChat";
 
 export default async function Landing() {
@@ -28,6 +29,7 @@ export default async function Landing() {
       <Services />
       <Products />
       <Blogs blogs={latestBlogs} />
+      <FAQ />
       <CTA />
       <Contact />
       <Footer />
