@@ -163,19 +163,22 @@ export default function AboutPage() {
                     </Text>
                     <div className="grid sm:grid-cols-2 gap-8">
                         <Text className="text-neutral-600 dark:text-neutral-400">
-                            It began with a simple pattern we kept seeing: schools tracking requests on
-                            paper, foundations losing hours to spreadsheets that couldn't keep up, and
-                            offices reporting the same recurring issue year after year with no system
-                            built to actually resolve it. The problems were visible to everyone inside
-                            those organizations. What was missing wasn't awareness, it was a team
-                            willing to sit with the mess and build a real fix.
+                            It started with a pattern we couldn't ignore, schools tracking requests on
+                            paper, foundations spending hours wrestling with spreadsheets, and offices
+                            facing the same problems year after year without a system built to solve
+                            them. These weren't invisible problems. Everyone could see them. What was
+                            missing was someone willing to understand the mess, find what was actually
+                            broken, and build something that worked.
                         </Text>
+
                         <Text className="text-neutral-600 dark:text-neutral-400">
-                            So that's what we became. A small studio that partners directly with
-                            schools, foundations, and government offices to design and ship software
-                            that holds up under real, everyday use. We've since worked alongside
-                            organizations like SM Foundation, Meralco Foundation, and DICT Region III,
-                            each project sharpening how we think about durable, dependable systems.
+                            So that's what we set out to do. We're a small organization that works
+                            directly with schools, foundations, and government offices to turn
+                            real-world problems into practical, dependable software. We don't believe
+                            in building systems just for the sake of having them. We build with the
+                            people who use them, shaped by the realities of their everyday work.
+                            Every project teaches us something new and pushes us toward building
+                            systems that last.
                         </Text>
                     </div>
                 </Reveal>
