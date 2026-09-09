@@ -33,7 +33,7 @@ export function TeamCarousel({ team }: TeamCarouselProps) {
                 {items.map((m, idx) => (
                     <div
                         key={idx}
-                        className="shrink-0 px-2 md:px-3 w-[85vw] sm:w-[45vw] md:w-[31vw] lg:w-[29vw] xl:w-[26vw]"
+                        className="shrink-0 px-2 md:px-3 w-[95vw] sm:w-[45vw] md:w-[31vw] lg:w-[29vw] xl:w-[26vw]"
                     >
                         <div className="relative border-2 border-border overflow-hidden">
                             <div className="relative w-full aspect-[3/4] bg-neutral-200 dark:bg-neutral-800">
@@ -41,7 +41,7 @@ export function TeamCarousel({ team }: TeamCarouselProps) {
                                     src={m.image}
                                     alt={m.name}
                                     fill
-                                    sizes="(max-width: 640px) 85vw, (max-width: 768px) 45vw, (max-width: 1024px) 31vw, 26vw"
+                                    sizes="(max-width: 640px) 95vw, (max-width: 768px) 60vw, (max-width: 1024px) 31vw, 26vw"
                                     className="object-cover"
                                     draggable={false}
                                 />
