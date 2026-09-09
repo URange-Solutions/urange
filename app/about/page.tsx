@@ -188,7 +188,7 @@ export default function AboutPage() {
                             in building systems just for the sake of having them. We build with the
                             people who use them, shaped by the realities of their everyday work.
                             Every project teaches us something new and pushes us toward building
-                            systems that last.
+                            systems that last. 
                         </Text>
                     </div>
                 </Reveal>
