@@ -6,6 +6,7 @@ import { Button } from "@/components/retro/button";
 import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { Metadata } from "next";
+import { TeamCarousel } from "@/components/TeamCarousel";
 
 interface ValueCard {
     label: string;
@@ -31,7 +32,7 @@ const pillars: ValueCard[] = [
     {
         label: "Vision",
         title: "A future where good systems are the standard",
-        desc: "We envision schools, foundations, and government offices using reliable systems as part of their everyday work. We want technology to reduce unnecessary work, improve how people serve others, and help organizations focus on what matters most.",
+        desc: "We envision schools, businesses, and government offices using reliable systems as part of their everyday work. We want technology to reduce unnecessary work, improve how people serve others, and help organizations focus on what matters most.",
     },
 ];
 
@@ -68,6 +69,14 @@ const team: TeamMember[] = [
         image: "/team/marvin.jpg",
         description: "Builds and ships features end to end, from database schema to the pixels users actually click on.",
         skills: ["React", "Node.js", "PostgreSQL"],
+    },
+    {
+        initials: "JT",
+        name: "Justeen James Tolentino",
+        role: "Full-Stack Developer & System Design",
+        image: "/team/justeen.jpg",
+        description: "Builds and ships features end to end, from database schema to the pixels users actually click on.",
+        skills: ["React", "Node.js", "Firebase"],
     },
 ];
 
@@ -212,50 +221,7 @@ export default function AboutPage() {
                     <Text className="font-head text-2xl sm:text-3xl md:text-4xl leading-tight mb-10 text-black dark:text-white">
                         SMALL TEAM, DIRECT ACCESS, NO HAND-OFFS
                     </Text>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
-                        {team.map((m, idx) => (
-                            <div
-                                key={idx}
-                                className="group relative border-2 border-border overflow-hidden"
-                            >
-                                {/* Photo */}
-                                <div className="relative w-full aspect-[3/4] bg-neutral-200 dark:bg-neutral-800">
-                                    <Image
-                                        src={m.image}
-                                        alt={m.name}
-                                        fill
-                                        sizes="(max-width: 768px) 50vw, 25vw"
-                                        className="object-cover transition-all duration-300"
-                                    />
-
-                                    {/* Hover overlay */}
-                                    <div className="absolute inset-0 bg-brand/95 opacity-0 group-hover:opacity-100 transition-opacity duration-300 p-4 flex flex-col justify-center">
-                                        <p className="text-xs text-white/90 leading-snug mb-3">
-                                            {m.description}
-                                        </p>
-                                        <div className="flex flex-wrap gap-1.5">
-                                            {m.skills.map((skill, sIdx) => (
-                                                <span
-                                                    key={sIdx}
-                                                    className="text-[10px] tracking-wide uppercase border border-white/40 text-white px-2 py-0.5"
-                                                >
-                                                    {skill}
-                                                </span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Name / role */}
-                                <div className="p-4 text-center">
-                                    <p className="font-head text-sm text-black dark:text-white">{m.name}</p>
-                                    <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1 uppercase tracking-wide">
-                                        {m.role}
-                                    </p>
-                                </div>
-                            </div>
-                        ))}
-                    </div>
+                    <TeamCarousel team={team} />
                 </Reveal>
             </main>
             <Footer />
