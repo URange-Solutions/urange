@@ -47,7 +47,7 @@ export function TeamCarousel({ team }: TeamCarouselProps) {
                                 />
 
                                 {/* Fading brand-color overlay — bottom portion only */}
-                                <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-brand via-brand/60 to-transparent opacity-30" />
+                                <div className="absolute inset-x-0 bottom-0 h-2/3 bg-linear-to-t from-background via-background/80 to-transparent opacity-30" />
 
                                 {/* Details on top of fade */}
                                 <div className="absolute inset-x-0 bottom-0 p-4">

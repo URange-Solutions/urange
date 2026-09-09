@@ -188,7 +188,7 @@ export default function AboutPage() {
                             in building systems just for the sake of having them. We build with the
                             people who use them, shaped by the realities of their everyday work.
                             Every project teaches us something new and pushes us toward building
-                            systems that last. 
+                            systems that last.
                         </Text>
                     </div>
                 </Reveal>
@@ -214,14 +214,18 @@ export default function AboutPage() {
                     </div>
                 </Reveal>
 
-                <Reveal className="mx-6 md:mx-24 mt-16 md:mt-24">
-                    <span className="inline-block font-head text-xs tracking-widest text-brand border border-brand px-3 py-1 mb-6">
-                        THE TEAM
-                    </span>
-                    <Text className="font-head text-2xl sm:text-3xl md:text-4xl leading-tight mb-10 text-black dark:text-white">
-                        SMALL TEAM, DIRECT ACCESS, NO HAND-OFFS
-                    </Text>
-                    <TeamCarousel team={team} />
+                <Reveal className="mt-16 md:mt-24">
+                    <div className="mx-6 md:mx-24">
+                        <span className=" inline-block font-head text-xs tracking-widest text-brand border border-brand px-3 py-1 mb-6">
+                            THE TEAM
+                        </span>
+                        <Text className="font-head text-2xl sm:text-3xl md:text-4xl leading-tight mb-10 text-black dark:text-white">
+                            SMALL TEAM, DIRECT ACCESS, NO HAND-OFFS
+                        </Text>
+                    </div>
+                    <div className="mx-2 md:mx-18">
+                        <TeamCarousel team={team} />
+                    </div>
                 </Reveal>
             </main>
             <Footer />
