@@ -26,14 +26,15 @@ const pillars: ValueCard[] = [
     {
         label: "Mission",
         title: "We turn everyday problems into systems that work",
-        desc: "We take the manual work, the broken process, the paper forms, the lost requests, the things everyone complains about but no one fixes, and we turn them into software that actually works. Simple to understand, simple to use, made for the people who use it every day.",
+        desc: "We build software that makes everyday work simpler and more organized. From manual processes and paper forms to requests and records, we create practical systems that are easy to understand, easy to use, and built around the people who use them.",
     },
     {
         label: "Vision",
-        title: "A future where good systems are normal, not rare",
-        desc: "We want schools, foundations, and government offices to have systems that work well, as a normal thing, not something special. Every project we build helps these groups spend less time struggling with their own tools, and more time doing the work that really matters.",
+        title: "A future where good systems are the standard",
+        desc: "We envision schools, foundations, and government offices using reliable systems as part of their everyday work. We want technology to reduce unnecessary work, improve how people serve others, and help organizations focus on what matters most.",
     },
 ];
+
 
 const team: TeamMember[] = [
     {
